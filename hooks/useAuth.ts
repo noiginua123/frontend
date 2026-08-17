@@ -19,7 +19,7 @@ const useGuest = () => {
     useEffect(() => {
       const token = getToken();
       if (token && !isTokenExpired(token?.accessToken)) {
-        router.push('/employees/list');
+        router.push('/employees/adm002');
       }
     }, [router]);
 }
