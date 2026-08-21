@@ -54,7 +54,7 @@ exports[`Layout Component Snapshots renders Header unchanged 1`] = `
             class="nav-item"
           >
             <a
-              href="/employees/list"
+              href="/employees/adm002"
             >
               トップ
             </a>

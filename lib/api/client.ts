@@ -13,7 +13,7 @@ export function setupInterceptors(client: ReturnType<typeof axios.create>) {
   client.interceptors.request.use(
     (config) => {
       const token = sessionStorage.getItem('access_token');
-      if (token) {
+      if (token && token !== 'undefined' && token !== 'null' && token.trim() !== '') {
         if (config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
         }

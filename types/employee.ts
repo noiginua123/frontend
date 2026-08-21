@@ -87,3 +87,41 @@ export interface EmployeeCertification {
   score: number; // DECIMAL
 }
 
+// Backend API DTOs & Responses
+export interface EmployeeListDTO {
+  employeeId: number;
+  employeeName: string;
+  employeeBirthDate?: string;
+  departmentName?: string;
+  employeeEmail: string;
+  employeeTelephone?: string;
+  certificationName?: string;
+  endDate?: string;
+  score?: number | null;
+}
+
+export interface DepartmentDTO {
+  departmentId: number;
+  departmentName: string;
+}
+
+export interface ListDepartmentResponse {
+  code: number;
+  departments: DepartmentDTO[];
+}
+
+export interface ListEmployeeResponse {
+  code: number;
+  totalRecords: number;
+  employees: EmployeeListDTO[];
+}
+
+export type SortOrder = 'ASC' | 'DESC';
+
+export interface SortState {
+  ordEmployeeName: SortOrder;
+  ordCertificationName: SortOrder;
+  ordEndDate: SortOrder;
+}
+
+

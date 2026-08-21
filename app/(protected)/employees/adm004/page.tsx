@@ -18,11 +18,11 @@ export default function EmployeeEditPage() {
   const certificationEndDateRef = useRef<DatePicker>(null);
 
   const handleConfirm = () => {
-    router.push('/employees/confirm');
+    router.push('/employees/adm005');
   };
 
   const handleBack = () => {
-    router.push('/employees/list');
+    router.push('/employees/adm002');
   };
   return (
     <div className="row">

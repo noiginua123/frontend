@@ -3,14 +3,17 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 
-export default function EmployeeDetailPage() {
+export default function EmployeeConfirmPage() {
   useAuth();
   const router = useRouter();
   return (
     <div className="row">
       <form className="c-form box-shadow">
         <ul className="show-data">
-          <li className="title">情報確認</li>
+          <li className="title">
+            <p>情報確認</p>
+            <p>入力された情報をＯＫボタンクリックでＤＢへ保存してください</p>
+          </li>
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">アカウント名</label>
             <div className="col-sm col-sm-10">ntmhuong</div>
@@ -33,7 +36,7 @@ export default function EmployeeDetailPage() {
           </li>
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">メールアドレス</label>
-            <div className="col-sm col-sm-10">	ntmhuong@luvina.net</div>
+            <div className="col-sm col-sm-10">メールアドレス</div>
           </li>
           <li className="form-group row d-flex  bor-none">
             <label className="col-form-label col-sm-2">電話番号</label>
@@ -58,9 +61,8 @@ export default function EmployeeDetailPage() {
           </li>
           <li className="form-group row d-flex">
             <div className="btn-group col-sm col-sm-10 ml">
-              <button type="button" onClick={() => router.push('/employees/edit')} className="btn btn-primary btn-sm">編集</button>
-              <button type="button" className="btn btn-secondary btn-sm">削除</button>
-              <button type="button" onClick={() => router.push('/employees/list')} className="btn btn-secondary btn-sm">戻る</button>
+              <button type="button" onClick={() => router.push('/employees/adm006')} className="btn btn-primary btn-sm">OK</button>
+              <button type="button" onClick={() => router.push('/employees/adm004')} className="btn btn-secondary btn-sm">戻る</button>
             </div>
           </li>
         </ul>
