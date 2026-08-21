@@ -933,9 +933,10 @@ exports[`Page Snapshots renders EmployeeListPage unchanged 1`] = `
             class="col-sm"
           >
             <input
+              aria-invalid="false"
               maxlength="125"
+              name="fullname"
               type="text"
-              value=""
             />
           </div>
         </li>
@@ -950,7 +951,9 @@ exports[`Page Snapshots renders EmployeeListPage unchanged 1`] = `
           <div
             class="col-sm"
           >
-            <select>
+            <select
+              name="departmentId"
+            >
               <option
                 value=""
               >

@@ -14,7 +14,7 @@ export interface GetEmployeesParams {
 /**
  * Lấy danh sách các phòng ban.
  *
- * @returns Promise<ListDepartmentResponse>
+ * @return Danh sách phòng ban từ backend
  */
 export async function getDepartments(): Promise<ListDepartmentResponse> {
   const response = await apiClient.get<ListDepartmentResponse>('/departments');
@@ -25,7 +25,7 @@ export async function getDepartments(): Promise<ListDepartmentResponse> {
  * Tìm kiếm và lấy danh sách nhân viên theo tiêu chí.
  *
  * @param params Tham số tìm kiếm, sắp xếp và phân trang
- * @returns Promise<ListEmployeeResponse>
+ * @return Danh sách nhân viên và tổng số bản ghi
  */
 export async function getEmployees(params?: GetEmployeesParams): Promise<ListEmployeeResponse> {
   const response = await apiClient.get<ListEmployeeResponse>('/employees', { params });

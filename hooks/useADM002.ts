@@ -1,13 +1,26 @@
-import { useState, useEffect, useCallback } from 'react';
-import { getDepartments, getEmployees, GetEmployeesParams } from '@/lib/api/employee.api';
-import { DepartmentDTO, EmployeeListDTO, SortState } from '@/types/employee';
+import { useCallback, useEffect, useState } from 'react';
+import {
+  ADM002_MESSAGES,
+  ADM002_PAGE_SIZE,
+} from '@/constants/adm002';
+import {
+  getDepartments,
+  getEmployees,
+  GetEmployeesParams,
+} from '@/lib/api/employee.api';
+import {
+  DepartmentDTO,
+  EmployeeListDTO,
+  EmployeeSearchFilter,
+  SortField,
+  SortOrder,
+  SortState,
+} from '@/types/employee';
 
-export interface SearchFilter {
-  fullname: string;
-  departmentId: string;
-}
-
-export type SortField = 'employeeName' | 'certificationName' | 'endDate';
+const INITIAL_SEARCH_FILTER: EmployeeSearchFilter = {
+  fullname: '',
+  departmentId: '',
+};
 
 export const INITIAL_SORT_STATE: SortState = {
   ordEmployeeName: 'ASC',
@@ -15,66 +28,131 @@ export const INITIAL_SORT_STATE: SortState = {
   ordEndDate: 'ASC',
 };
 
+/**
+ * Đảo chiều sắp xếp giữa tăng dần và giảm dần.
+ *
+ * @param sortOrder Chiều sắp xếp hiện tại
+ * @return Chiều sắp xếp tiếp theo
+ */
+function toggleSortOrder(sortOrder: SortOrder): SortOrder {
+  return sortOrder === 'ASC' ? 'DESC' : 'ASC';
+}
+
+/**
+ * Tạo trạng thái sắp xếp mới cho cột được người dùng lựa chọn.
+ *
+ * @param currentSortState Trạng thái sắp xếp hiện tại
+ * @param field Cột cần thay đổi chiều sắp xếp
+ * @return Trạng thái sắp xếp sau khi cập nhật
+ */
+function createNextSortState(
+  currentSortState: SortState,
+  field: SortField,
+): SortState {
+  if (field === 'employeeName') {
+    return {
+      ...currentSortState,
+      ordEmployeeName: toggleSortOrder(currentSortState.ordEmployeeName),
+    };
+  }
+
+  if (field === 'certificationName') {
+    return {
+      ...currentSortState,
+      ordCertificationName: toggleSortOrder(
+        currentSortState.ordCertificationName,
+      ),
+    };
+  }
+
+  return {
+    ...currentSortState,
+    ordEndDate: toggleSortOrder(currentSortState.ordEndDate),
+  };
+}
+
+/**
+ * Quản lý dữ liệu, tìm kiếm, sắp xếp và phân trang của màn hình ADM002.
+ *
+ * @return Trạng thái màn hình và các hàm xử lý của ADM002
+ */
 export function useADM002() {
   const [departments, setDepartments] = useState<DepartmentDTO[]>([]);
   const [employees, setEmployees] = useState<EmployeeListDTO[]>([]);
-  const [totalRecords, setTotalRecords] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Điều kiện tìm kiếm
-  const [searchParams, setSearchParams] = useState<SearchFilter>({
-    fullname: '',
-    departmentId: '',
-  });
-
-  // Trạng thái sắp xếp của từng cột (mặc định cả 3 cột đều = ASC để render icon ▲▽)
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [departmentError, setDepartmentError] = useState<string | null>(null);
+  const [employeeError, setEmployeeError] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useState<EmployeeSearchFilter>(
+    INITIAL_SEARCH_FILTER,
+  );
   const [sortState, setSortState] = useState<SortState>(INITIAL_SORT_STATE);
+  const [activeSortField, setActiveSortField] =
+    useState<SortField>('employeeName');
 
-  // Cột đang được active sort gần nhất (mặc định sắp xếp theo tên nhân viên)
-  const [activeSortField, setActiveSortField] = useState<SortField>('employeeName');
-
-  // Nạp danh sách phòng ban thông qua API layer
+  /**
+   * Lấy danh sách phòng ban dùng cho điều kiện tìm kiếm.
+   */
   const fetchDepartments = useCallback(async () => {
+    setDepartmentError(null);
     try {
-      const data = await getDepartments();
-      if (data && data.departments) {
-        setDepartments(data.departments);
-      }
+      const response = await getDepartments();
+      setDepartments(response.departments ?? []);
     } catch {
-      setError('部門を取得できません');
+      setDepartments([]);
+      setDepartmentError(ADM002_MESSAGES.departmentLoadError);
     }
   }, []);
 
-  // Gọi API lấy danh sách nhân viên theo điều kiện tìm kiếm và cột đang active sort
-  const fetchEmployees = useCallback(async (filter: SearchFilter, sort: SortState, activeField: SortField) => {
+  /**
+   * Lấy danh sách nhân viên theo điều kiện tìm kiếm, sắp xếp và trang hiện tại.
+   *
+   * @param filter Điều kiện tìm kiếm nhân viên
+   * @param currentSortState Trạng thái chiều sắp xếp của các cột
+   * @param currentActiveSortField Cột đang được dùng để sắp xếp
+   * @param page Trang cần lấy dữ liệu
+   */
+  const fetchEmployees = useCallback(async (
+    filter: EmployeeSearchFilter,
+    currentSortState: SortState,
+    currentActiveSortField: SortField,
+    page: number,
+  ) => {
     setLoading(true);
-    setError(null);
+    setEmployeeError(null);
+
+    const params: GetEmployeesParams = {
+      offset: (page - 1) * ADM002_PAGE_SIZE,
+      limit: ADM002_PAGE_SIZE,
+      ord_employee_name:
+        currentActiveSortField === 'employeeName'
+          ? currentSortState.ordEmployeeName
+          : '',
+      ord_certification_name:
+        currentActiveSortField === 'certificationName'
+          ? currentSortState.ordCertificationName
+          : '',
+      ord_end_date:
+        currentActiveSortField === 'endDate'
+          ? currentSortState.ordEndDate
+          : '',
+    };
+
+    const normalizedFullname = filter.fullname.trim();
+    if (normalizedFullname) {
+      params.employee_name = normalizedFullname;
+    }
+    if (filter.departmentId) {
+      params.department_id = filter.departmentId;
+    }
+
     try {
-      // Chỉ gửi param sort của cột đang được click/active để Backend ưu tiên sort đúng cột đó
-      const params: GetEmployeesParams = {
-        offset: 0,
-        limit: 20,
-        ord_employee_name: activeField === 'employeeName' ? sort.ordEmployeeName : '',
-        ord_certification_name: activeField === 'certificationName' ? sort.ordCertificationName : '',
-        ord_end_date: activeField === 'endDate' ? sort.ordEndDate : '',
-      };
-
-      if (filter.fullname.trim()) {
-        params.employee_name = filter.fullname.trim();
-      }
-
-      if (filter.departmentId) {
-        params.department_id = filter.departmentId;
-      }
-
-      const data = await getEmployees(params);
-      if (data) {
-        setEmployees(data.employees || []);
-        setTotalRecords(data.totalRecords || 0);
-      }
+      const response = await getEmployees(params);
+      setEmployees(response.employees ?? []);
+      setTotalRecords(response.totalRecords ?? 0);
     } catch {
-      setError('従業員を取得できません');
+      setEmployeeError(ADM002_MESSAGES.employeeLoadError);
       setEmployees([]);
       setTotalRecords(0);
     } finally {
@@ -82,56 +160,75 @@ export function useADM002() {
     }
   }, []);
 
-  // Xử lý khi nhấn nút Tìm kiếm (giữ nguyên cột active sort hiện tại)
-  const handleSearch = useCallback((filter: SearchFilter) => {
+  /**
+   * Áp dụng điều kiện tìm kiếm mới và tải lại dữ liệu từ trang đầu tiên.
+   *
+   * @param filter Điều kiện tìm kiếm mới
+   */
+  const handleSearch = useCallback((filter: EmployeeSearchFilter) => {
+    const firstPage = 1;
     setSearchParams(filter);
-    fetchEmployees(filter, sortState, activeSortField);
-  }, [fetchEmployees, sortState, activeSortField]);
+    setCurrentPage(firstPage);
+    void fetchEmployees(
+      filter,
+      sortState,
+      activeSortField,
+      firstPage,
+    );
+  }, [activeSortField, fetchEmployees, sortState]);
 
-  // Xử lý khi click vào cột Sort trên Header bảng
+  /**
+   * Thay đổi chiều sắp xếp của cột được chọn và tải lại trang đầu tiên.
+   *
+   * @param field Cột được người dùng lựa chọn để sắp xếp
+   */
   const handleSort = useCallback((field: SortField) => {
+    const firstPage = 1;
+    const nextSortState = createNextSortState(sortState, field);
+
+    setSortState(nextSortState);
     setActiveSortField(field);
-    setSortState((prevSort) => {
-      let nextSort: SortState;
-      if (field === 'employeeName') {
-        nextSort = {
-          ...prevSort,
-          ordEmployeeName: prevSort.ordEmployeeName === 'ASC' ? 'DESC' : 'ASC',
-        };
-      } else if (field === 'certificationName') {
-        nextSort = {
-          ...prevSort,
-          ordCertificationName: prevSort.ordCertificationName === 'ASC' ? 'DESC' : 'ASC',
-        };
-      } else {
-        nextSort = {
-          ...prevSort,
-          ordEndDate: prevSort.ordEndDate === 'ASC' ? 'DESC' : 'ASC',
-        };
-      }
+    setCurrentPage(firstPage);
+    void fetchEmployees(searchParams, nextSortState, field, firstPage);
+  }, [fetchEmployees, searchParams, sortState]);
 
-      // Gọi API với trạng thái sort mới cho cột được click
-      fetchEmployees(searchParams, nextSort, field);
-      return nextSort;
-    });
-  }, [fetchEmployees, searchParams]);
+  /**
+   * Tải danh sách nhân viên của trang được lựa chọn.
+   *
+   * @param page Trang cần chuyển đến
+   */
+  const handlePageChange = useCallback((page: number) => {
+    if (page === currentPage) {
+      return;
+    }
 
-  // Khởi tạo ban đầu
+    setCurrentPage(page);
+    void fetchEmployees(searchParams, sortState, activeSortField, page);
+  }, [activeSortField, currentPage, fetchEmployees, searchParams, sortState]);
+
   useEffect(() => {
-    fetchDepartments();
-    fetchEmployees({ fullname: '', departmentId: '' }, INITIAL_SORT_STATE, 'employeeName');
+    void fetchDepartments();
+    void fetchEmployees(
+      INITIAL_SEARCH_FILTER,
+      INITIAL_SORT_STATE,
+      'employeeName',
+      1,
+    );
   }, [fetchDepartments, fetchEmployees]);
 
   return {
     departments,
     employees,
     totalRecords,
+    currentPage,
     loading,
-    error,
+    departmentError,
+    employeeError,
     searchParams,
     sortState,
     activeSortField,
     handleSearch,
     handleSort,
+    handlePageChange,
   };
 }

@@ -1,53 +1,101 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
-import { DepartmentDTO } from '@/types/employee';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { EMPLOYEE_NAME_MAX_LENGTH } from '@/constants/adm002';
+import {
+  EmployeeSearchFormData,
+  employeeSearchSchema,
+} from '@/lib/validation/employee';
+import { DepartmentDTO, EmployeeSearchFilter } from '@/types/employee';
 
 interface EmployeeListFormProps {
   departments: DepartmentDTO[];
-  onSearch: (filter: { fullname: string; departmentId: string }) => void;
+  departmentError: string | null;
+  onSearch: (filter: EmployeeSearchFilter) => void;
   initialFullname?: string;
   initialDepartmentId?: string;
 }
 
+/**
+ * Hiển thị form nhập điều kiện tìm kiếm nhân viên và nút thêm mới.
+ *
+ * @param departments Danh sách phòng ban dùng cho combobox
+ * @param departmentError Thông báo lỗi khi không lấy được phòng ban
+ * @param onSearch Hàm xử lý khi người dùng thực hiện tìm kiếm
+ * @param initialFullname Tên nhân viên được khởi tạo trên form
+ * @param initialDepartmentId ID phòng ban được khởi tạo trên form
+ * @return Form tìm kiếm nhân viên ADM002
+ */
 export const EmployeeListForm: React.FC<EmployeeListFormProps> = ({
   departments,
+  departmentError,
   onSearch,
   initialFullname = '',
   initialDepartmentId = '',
 }) => {
   const router = useRouter();
-  const [fullname, setFullname] = useState<string>(initialFullname);
-  const [departmentId, setDepartmentId] = useState<string>(initialDepartmentId);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<EmployeeSearchFormData>({
+    resolver: zodResolver(employeeSearchSchema),
+    defaultValues: {
+      fullname: initialFullname,
+      departmentId: initialDepartmentId,
+    },
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSearch({ fullname, departmentId });
+  /**
+   * Chuyển dữ liệu form đã được kiểm tra hợp lệ sang hàm tìm kiếm.
+   *
+   * @param formData Điều kiện tìm kiếm lấy từ form
+   */
+  const handleSearch = (formData: EmployeeSearchFormData) => {
+    onSearch(formData);
+  };
+
+  /**
+   * Chuyển sang màn hình đăng ký nhân viên ADM004.
+   */
+  const handleAddEmployee = () => {
+    router.push('/employees/adm004');
   };
 
   return (
     <div className="search-memb">
       <h1 className="title">会員名称で会員を検索します。検索条件無しの場合は全て表示されます。</h1>
-      <form className="c-form" onSubmit={handleSubmit}>
+      {departmentError && (
+        <div className="box-err-content adm002-error-message">
+          {departmentError}
+        </div>
+      )}
+      <form className="c-form" onSubmit={handleSubmit(handleSearch)}>
         <ul className="d-flex">
           <li className="form-group row">
             <label className="col-form-label">氏名:</label>
             <div className="col-sm">
               <input
                 type="text"
-                maxLength={125}
-                value={fullname}
-                onChange={(e) => setFullname(e.target.value)}
+                maxLength={EMPLOYEE_NAME_MAX_LENGTH}
+                aria-invalid={Boolean(errors.fullname)}
+                {...register('fullname')}
               />
+              {errors.fullname && (
+                <div className="box-err-content adm002-field-error">
+                  {errors.fullname.message}
+                </div>
+              )}
             </div>
           </li>
           <li className="form-group row">
             <label className="col-form-label">グループ:</label>
             <div className="col-sm">
               <select
-                value={departmentId}
-                onChange={(e) => setDepartmentId(e.target.value)}
+                {...register('departmentId')}
               >
                 <option value="">全て</option>
                 {departments.map((dept) => (
@@ -65,7 +113,7 @@ export const EmployeeListForm: React.FC<EmployeeListFormProps> = ({
               </button>
               <button
                 type="button"
-                onClick={() => router.push('/employees/adm004')}
+                onClick={handleAddEmployee}
                 className="btn btn-secondary btn-sm"
               >
                 新規追加

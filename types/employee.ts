@@ -11,6 +11,7 @@ export interface EmployeeDB {
   employee_telephone?: string;
   employee_login_id: string; // Required, links to login users
   employee_login_password?: string; // Not managed by frontend
+  employee_role: EmployeeRole;
 }
 
 // Frontend display representation (as shown in UI)
@@ -98,6 +99,7 @@ export interface EmployeeListDTO {
   certificationName?: string;
   endDate?: string;
   score?: number | null;
+  role: EmployeeRole;
 }
 
 export interface DepartmentDTO {
@@ -117,6 +119,15 @@ export interface ListEmployeeResponse {
 }
 
 export type SortOrder = 'ASC' | 'DESC';
+
+export type EmployeeRole = 0 | 1;
+
+export type SortField = 'employeeName' | 'certificationName' | 'endDate';
+
+export interface EmployeeSearchFilter {
+  fullname: string;
+  departmentId: string;
+}
 
 export interface SortState {
   ordEmployeeName: SortOrder;
