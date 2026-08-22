@@ -7,12 +7,22 @@ import { apiClient } from '@/lib/api/client';
 import { storeToken } from '@/lib/auth/token';
 import { loginSchema, LoginForm as LoginFormType } from '@/lib/validation/auth';
 
+/**
+ * Component form đăng nhập hệ thống ADM001.
+ *
+ * @return Giao diện form đăng nhập
+ */
 export default function LoginForm() {
   const router = useRouter();
   const { register, handleSubmit, formState: { errors }, setError } = useForm<LoginFormType>({
     resolver: zodResolver(loginSchema),
   });
 
+  /**
+   * Xử lý gửi yêu cầu đăng nhập lên API và lưu token nếu thành công.
+   *
+   * @param data Dữ liệu tài khoản đăng nhập từ form
+   */
   const onSubmit = async (data: LoginFormType) => {
     try {
       const response = await apiClient.post<{ accessToken: string; tokenType: string }>('/login', data);

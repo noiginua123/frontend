@@ -4,6 +4,11 @@ import Image from 'next/image';
 import { useGuest } from '@/hooks/useAuth';
 import LoginForm from '@/components/auth/LoginForm';
 
+/**
+ * Component trang đăng nhập ADM001.
+ *
+ * @return Giao diện trang đăng nhập
+ */
 export default function LoginPage() {
   useGuest();
 

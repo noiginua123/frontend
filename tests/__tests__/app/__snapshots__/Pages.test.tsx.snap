@@ -998,22 +998,10 @@ exports[`Page Snapshots renders EmployeeListPage unchanged 1`] = `
           ID
         </div>
         <div
-          style="cursor: pointer; user-select: none;"
-          title="クリックしてソート切り替え"
+          class="sort-header-button font-weight-bold text-dark"
+          style="cursor: pointer; user-select: none; font-weight: bold;"
         >
-          <span>
-            氏名
-          </span>
-          <span
-            style="margin-left: 4px; display: inline-flex; gap: 2px; font-size: 11px; vertical-align: baseline;"
-          >
-            <span>
-              ▲
-            </span>
-            <span>
-              ▽
-            </span>
-          </span>
+          氏名 ▲▽
         </div>
         <div>
           生年月日
@@ -1028,55 +1016,26 @@ exports[`Page Snapshots renders EmployeeListPage unchanged 1`] = `
           電話番号
         </div>
         <div
-          style="cursor: pointer; user-select: none;"
-          title="クリックしてソート切り替え"
+          class="sort-header-button "
+          style="cursor: pointer; user-select: none; font-weight: normal;"
         >
-          <span>
-            日本語能力
-          </span>
-          <span
-            style="margin-left: 4px; display: inline-flex; gap: 2px; font-size: 11px; vertical-align: baseline;"
-          >
-            <span>
-              ▲
-            </span>
-            <span>
-              ▽
-            </span>
-          </span>
+          日本語能力 ▲▽
         </div>
         <div
-          style="cursor: pointer; user-select: none;"
-          title="クリックしてソート切り替え"
+          class="sort-header-button "
+          style="cursor: pointer; user-select: none; font-weight: normal;"
         >
-          <span>
-            失効日
-          </span>
-          <span
-            style="margin-left: 4px; display: inline-flex; gap: 2px; font-size: 11px; vertical-align: baseline;"
-          >
-            <span>
-              ▲
-            </span>
-            <span>
-              ▽
-            </span>
-          </span>
+          失効日 ▲▽
         </div>
         <div>
           点数
         </div>
       </div>
       <div
-        class="css-grid-table-body"
-        style="grid-template-columns: 100%;"
+        class="p-3"
+        style="grid-column: 1 / -1; padding: 16px;"
       >
-        <div
-          class="text-center"
-          style="padding: 24px; grid-column: 1 / -1;"
-        >
-          読み込み中...
-        </div>
+        Loading...
       </div>
     </div>
   </div>

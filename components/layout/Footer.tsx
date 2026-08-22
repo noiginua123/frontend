@@ -1,3 +1,8 @@
+/**
+ * Component hiển thị chân trang (Footer) chứa thông tin bản quyền của ứng dụng.
+ *
+ * @return Giao diện Footer
+ */
 const Footer = () => {
   return (
     <footer className="footer">

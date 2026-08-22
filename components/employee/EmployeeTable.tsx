@@ -1,179 +1,204 @@
 'use client';
 
-import React from 'react';
+import React, { Fragment } from 'react';
 import Link from 'next/link';
-import { ADM002_MESSAGES } from '@/constants/adm002';
-import {
-  EmployeeListDTO,
-  EmployeeSearchFilter,
-  SortField,
-  SortOrder,
-  SortState,
-} from '@/types/employee';
-import {
-  formatEmployeeDate,
-  truncateEmployeeName,
-} from '@/utils/employee';
+import { useSearchParams } from 'next/navigation';
+import { EmployeeListItem, SortField, SortOrder } from '@/types/employee';
+import { formatEmployeeDate } from '@/utils/employee';
 
-interface EmployeeTableProps {
-  employees: EmployeeListDTO[];
-  loading: boolean;
-  error: string | null;
+interface Props {
+  employees: EmployeeListItem[];
+  isLoading: boolean;
+  errorMessage: string | null;
   currentPage: number;
-  searchParams: EmployeeSearchFilter;
-  sortState: SortState;
-  activeSortField: SortField;
-  onSort: (field: SortField) => void;
+  totalPages: number;
+  visiblePages: number[];
+  employeeNameSort: SortOrder;
+  certificationSort: SortOrder;
+  endDateSort: SortOrder;
+  prioritySortField?: SortField;
+  onPageChange: (page: number) => void | Promise<void>;
+  onSortChange: (sortKey: SortField) => void | Promise<void>;
+  emptyMessage?: string;
 }
 
 /**
- * Hiển thị danh sách nhân viên và điều khiển sắp xếp của ADM002.
+ * Component hiển thị bảng danh sách nhân viên kèm sắp xếp và phân trang.
  *
- * @param employees Danh sách nhân viên cần hiển thị
- * @param loading Trạng thái đang tải danh sách
- * @param error Thông báo lỗi khi lấy danh sách nhân viên
- * @param currentPage Trang hiện tại
- * @param searchParams Điều kiện tìm kiếm hiện tại
- * @param sortState Trạng thái chiều sắp xếp của từng cột
- * @param activeSortField Cột đang được dùng để sắp xếp
- * @param onSort Hàm xử lý khi người dùng chọn cột sắp xếp
- * @return Bảng danh sách nhân viên ADM002
+ * @param props Các thuộc tính truyền vào component
+ * @return Giao diện bảng danh sách nhân viên
  */
-export const EmployeeTable: React.FC<EmployeeTableProps> = ({
+const EmployeeTable = ({
   employees,
-  loading,
-  error,
+  isLoading,
+  errorMessage,
   currentPage,
-  searchParams,
-  sortState,
-  activeSortField,
-  onSort,
-}) => {
-  /**
-   * Tạo đường dẫn đến màn hình chi tiết và giữ lại trạng thái của ADM002.
-   *
-   * @param employeeId ID nhân viên được chọn
-   * @return Đường dẫn đến màn hình chi tiết nhân viên ADM003
-   */
-  const getDetailUrl = (employeeId: number) => {
-    const params = new URLSearchParams();
-    params.set('id', String(employeeId));
-    params.set('page', String(currentPage));
-    params.set('active_sort', activeSortField);
-    params.set('ord_employee_name', sortState.ordEmployeeName);
-    params.set('ord_certification_name', sortState.ordCertificationName);
-    params.set('ord_end_date', sortState.ordEndDate);
+  totalPages,
+  visiblePages,
+  employeeNameSort,
+  certificationSort,
+  endDateSort,
+  prioritySortField = 'employeeName',
+  onPageChange,
+  onSortChange,
+  emptyMessage = '検索条件に該当するユーザが見つかりません。',
+}: Props) => {
+  const searchParams = useSearchParams();
+  const queryString = searchParams ? searchParams.toString() : '';
 
-    if (searchParams.fullname.trim()) {
-      params.set('employee_name', searchParams.fullname.trim());
-    }
-    if (searchParams.departmentId) {
-      params.set('department_id', searchParams.departmentId);
-    }
-    return `/employees/adm003?${params.toString()}`;
+  /**
+   * Tạo đường dẫn đến màn hình chi tiết nhân viên ADM003 kèm theo các query params hiện tại.
+   *
+   * @param id ID nhân viên cần xem chi tiết
+   * @return Chuỗi đường dẫn chi tiết
+   */
+  const getHref = (id: number) => {
+    return `/employees/adm003?id=${id}${queryString ? `&${queryString}` : ''}`;
   };
 
   /**
-   * Tạo biểu tượng thể hiện chiều sắp xếp của một cột.
+   * Hiển thị nhãn cột kèm biểu tượng chiều sắp xếp (▲▽ / ▼△).
+   * Hiển thị icon theo đúng chiều sắp xếp đang lưu của từng cột trong sortState.
    *
-   * @param order Chiều sắp xếp hiện tại
-   * @return Cặp biểu tượng sắp xếp tăng dần và giảm dần
+   * @param label Tên nhãn hiển thị của cột
+   * @param sortOrder Chiều sắp xếp (ASC / DESC)
+   * @return Chuỗi nhãn kèm biểu tượng sắp xếp
    */
-  const renderSortIcons = (order: SortOrder) => {
-    const isAsc = order === 'ASC';
-    return (
-      <span
-        style={{
-          marginLeft: '4px',
-          display: 'inline-flex',
-          gap: '2px',
-          fontSize: '11px',
-          verticalAlign: 'baseline',
-        }}
-      >
-        <span>{isAsc ? '▲' : '▼'}</span>
-        <span>{isAsc ? '▽' : '△'}</span>
-      </span>
-    );
+  const renderSortLabel = (label: string, sortOrder: SortOrder) => {
+    const icon = sortOrder === 'ASC' ? '▲▽' : '▼△';
+    return `${label} ${icon}`;
   };
 
   return (
     <div className="row row-table">
-      {error && (
-        <div className="box-err-content adm002-error-message">
-          {error}
-        </div>
-      )}
-
-      {!loading && !error && employees.length === 0 && (
-        <div className="box-err-content adm002-error-message">
-          {ADM002_MESSAGES.employeeNotFound}
-        </div>
-      )}
-
       <div className="css-grid-table box-shadow">
+        {/* Table Header */}
         <div className="css-grid-table-header">
           <div>ID</div>
           <div
-            style={{ cursor: 'pointer', userSelect: 'none' }}
-            onClick={() => onSort('employeeName')}
-            title="クリックしてソート切り替え"
+            className={`sort-header-button ${prioritySortField === 'employeeName' ? 'font-weight-bold text-dark' : ''}`}
+            style={{
+              cursor: 'pointer',
+              userSelect: 'none',
+              fontWeight: prioritySortField === 'employeeName' ? 'bold' : 'normal',
+            }}
+            onClick={() => void onSortChange('employeeName')}
           >
-            <span>氏名</span>
-            {renderSortIcons(sortState.ordEmployeeName)}
+            {renderSortLabel('氏名', employeeNameSort)}
           </div>
           <div>生年月日</div>
           <div>グループ</div>
           <div>メールアドレス</div>
           <div>電話番号</div>
           <div
-            style={{ cursor: 'pointer', userSelect: 'none' }}
-            onClick={() => onSort('certificationName')}
-            title="クリックしてソート切り替え"
+            className={`sort-header-button ${prioritySortField === 'certificationName' ? 'font-weight-bold text-dark' : ''}`}
+            style={{
+              cursor: 'pointer',
+              userSelect: 'none',
+              fontWeight: prioritySortField === 'certificationName' ? 'bold' : 'normal',
+            }}
+            onClick={() => void onSortChange('certificationName')}
           >
-            <span>日本語能力</span>
-            {renderSortIcons(sortState.ordCertificationName)}
+            {renderSortLabel('日本語能力', certificationSort)}
           </div>
           <div
-            style={{ cursor: 'pointer', userSelect: 'none' }}
-            onClick={() => onSort('endDate')}
-            title="クリックしてソート切り替え"
+            className={`sort-header-button ${prioritySortField === 'endDate' ? 'font-weight-bold text-dark' : ''}`}
+            style={{
+              cursor: 'pointer',
+              userSelect: 'none',
+              fontWeight: prioritySortField === 'endDate' ? 'bold' : 'normal',
+            }}
+            onClick={() => void onSortChange('endDate')}
           >
-            <span>失効日</span>
-            {renderSortIcons(sortState.ordEndDate)}
+            {renderSortLabel('失効日', endDateSort)}
           </div>
           <div>点数</div>
         </div>
 
-        <div
-          className="css-grid-table-body"
-          style={loading ? { gridTemplateColumns: '100%' } : undefined}
-        >
-          {loading ? (
-            <div className="text-center" style={{ padding: '24px', gridColumn: '1 / -1', borderLeft: 'none' }}>
-              {ADM002_MESSAGES.loading}
-            </div>
-          ) : (
-            employees.map((emp) => (
-              <React.Fragment key={emp.employeeId}>
+        {/* Loading / Error / Empty States */}
+        {isLoading && <div className="p-3" style={{ gridColumn: '1 / -1', padding: '16px' }}>Loading...</div>}
+        {!isLoading && errorMessage && (
+          <div className="p-3 text-danger box-err-content adm002-error-message" style={{ gridColumn: '1 / -1', margin: '16px' }}>
+            {errorMessage}
+          </div>
+        )}
+        {!isLoading && !errorMessage && employees.length === 0 && (
+          <div className="p-3" style={{ gridColumn: '1 / -1', padding: '16px', textAlign: 'center' }}>
+            {emptyMessage}
+          </div>
+        )}
+
+        {/* Table Body */}
+        {!isLoading && !errorMessage && employees.length > 0 && (
+          <div className="css-grid-table-body">
+            {employees.map((e, index) => (
+              <Fragment
+                key={`${e.employeeId}-${e.certificationName ?? 'none'}-${e.endDate ?? 'none'}-${index}`}
+              >
                 <div className="bor-l-none text-center">
-                  <Link href={getDetailUrl(emp.employeeId)}>{emp.employeeId}</Link>
+                  <Link href={getHref(e.employeeId)} className="no-underline text-black hover-primary">
+                    {e.employeeId}
+                  </Link>
                 </div>
-                <div className="employee-name-cell" title={emp.employeeName}>
-                  {truncateEmployeeName(emp.employeeName)}
-                </div>
-                <div>{formatEmployeeDate(emp.employeeBirthDate)}</div>
-                <div>{emp.departmentName || ''}</div>
-                <div>{emp.employeeEmail || ''}</div>
-                <div>{emp.employeeTelephone || ''}</div>
-                <div>{emp.certificationName || ''}</div>
-                <div>{formatEmployeeDate(emp.endDate)}</div>
-                <div>{emp.score !== null && emp.score !== undefined ? emp.score : ''}</div>
-              </React.Fragment>
-            ))
-          )}
-        </div>
+                <div title={e.employeeName}>{e.employeeName}</div>
+                <div>{formatEmployeeDate(e.employeeBirthDate)}</div>
+                <div>{e.departmentName ?? ''}</div>
+                <div>{e.employeeEmail ?? ''}</div>
+                <div>{e.employeeTelephone ?? ''}</div>
+                <div>{e.certificationName ?? ''}</div>
+                <div>{formatEmployeeDate(e.endDate)}</div>
+                <div>{e.score !== null && e.score !== undefined ? e.score : ''}</div>
+              </Fragment>
+            ))}
+          </div>
+        )}
+
+        {/* Pagination Section */}
+        {totalPages > 1 && (
+          <div className="pagin" style={{ gridColumn: '1 / -1' }}>
+            <button
+              type="button"
+              className="btn btn-sm btn-pre btn-falcon-default"
+              onClick={() => void onPageChange(currentPage - 1)}
+              disabled={currentPage === 1 || isLoading}
+            >
+              &lt;
+            </button>
+            {visiblePages.map((page, index) => {
+              const previousPage = visiblePages[index - 1];
+              const shouldShowEllipsis = previousPage && page - previousPage > 1;
+
+              return (
+                <Fragment key={page}>
+                  {shouldShowEllipsis && (
+                    <span className="btn btn-sm btn-falcon-default" style={{ cursor: 'default' }}>...</span>
+                  )}
+                  <button
+                    type="button"
+                    className={`btn btn-sm btn-falcon-default ${page === currentPage ? 'text-dark active' : 'text-primary'
+                      }`}
+                    onClick={() => void onPageChange(page)}
+                    disabled={page === currentPage || isLoading}
+                  >
+                    {page}
+                  </button>
+                </Fragment>
+              );
+            })}
+            <button
+              type="button"
+              className="btn btn-sm btn-next btn-falcon-default"
+              onClick={() => void onPageChange(currentPage + 1)}
+              disabled={currentPage === totalPages || isLoading}
+            >
+              &gt;
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
 };
+
+export { EmployeeTable };
+export default EmployeeTable;

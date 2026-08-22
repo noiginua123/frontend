@@ -4,6 +4,12 @@ import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import { usePathname } from 'next/navigation';
 
+/**
+ * Layout gốc của toàn bộ ứng dụng, quản lý Header và Footer chung.
+ *
+ * @param props Thuộc tính component chứa children
+ * @return Cấu trúc HTML & layout của ứng dụng
+ */
 export default function RootLayout({
   children,
 }: {

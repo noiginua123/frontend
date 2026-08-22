@@ -7,6 +7,7 @@ export interface GetEmployeesParams {
   ord_employee_name?: string;
   ord_certification_name?: string;
   ord_end_date?: string;
+  priority_sort?: string;
   offset?: number;
   limit?: number;
 }
@@ -17,7 +18,7 @@ export interface GetEmployeesParams {
  * @return Danh sách phòng ban từ backend
  */
 export async function getDepartments(): Promise<ListDepartmentResponse> {
-  const response = await apiClient.get<ListDepartmentResponse>('/departments');
+  const response = await apiClient.get<ListDepartmentResponse>('/department');
   return response.data;
 }
 
@@ -28,6 +29,6 @@ export async function getDepartments(): Promise<ListDepartmentResponse> {
  * @return Danh sách nhân viên và tổng số bản ghi
  */
 export async function getEmployees(params?: GetEmployeesParams): Promise<ListEmployeeResponse> {
-  const response = await apiClient.get<ListEmployeeResponse>('/employees', { params });
+  const response = await apiClient.get<ListEmployeeResponse>('/employee', { params });
   return response.data;
 }

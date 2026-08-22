@@ -28,6 +28,22 @@ export const INITIAL_SORT_STATE: SortState = {
   ordEndDate: 'ASC',
 };
 
+const INITIAL_PRIORITY_SORT_FIELD: SortField = 'employeeName';
+
+/**
+ * Cấu hình sắp xếp: cột ưu tiên (sort chính) + chiều sắp xếp của cả 3 cột.
+ * Gộp vào một state để quyết định toggle/switch luôn dựa trên trạng thái mới nhất.
+ */
+interface SortConfig {
+  prioritySortField: SortField;
+  sortState: SortState;
+}
+
+const INITIAL_SORT_CONFIG: SortConfig = {
+  prioritySortField: INITIAL_PRIORITY_SORT_FIELD,
+  sortState: INITIAL_SORT_STATE,
+};
+
 /**
  * Đảo chiều sắp xếp giữa tăng dần và giảm dần.
  *
@@ -39,7 +55,7 @@ function toggleSortOrder(sortOrder: SortOrder): SortOrder {
 }
 
 /**
- * Tạo trạng thái sắp xếp mới cho cột được người dùng lựa chọn.
+ * Tạo trạng thái sắp xếp mới cho cột được người dùng lựa chọn (đảo chiều cột đó).
  *
  * @param currentSortState Trạng thái sắp xếp hiện tại
  * @param field Cột cần thay đổi chiều sắp xếp
@@ -55,7 +71,6 @@ function createNextSortState(
       ordEmployeeName: toggleSortOrder(currentSortState.ordEmployeeName),
     };
   }
-
   if (field === 'certificationName') {
     return {
       ...currentSortState,
@@ -64,7 +79,6 @@ function createNextSortState(
       ),
     };
   }
-
   return {
     ...currentSortState,
     ordEndDate: toggleSortOrder(currentSortState.ordEndDate),
@@ -72,7 +86,54 @@ function createNextSortState(
 }
 
 /**
- * Quản lý dữ liệu, tìm kiếm, sắp xếp và phân trang của màn hình ADM002.
+ * Tính cấu hình sắp xếp kế tiếp theo mô hình ưu tiên động:
+ * - Cột vừa được bấm sẽ trở thành cột ưu tiên chính (prioritySortField).
+ * - Cột vừa bấm luôn được đảo chiều (ASC <-> DESC) so với trạng thái hiện tại của nó.
+ * - Hai cột còn lại giữ nguyên chiều sắp xếp đang lưu trong sortState.
+ *
+ * @param previous Cấu hình sắp xếp hiện tại
+ * @param field Cột người dùng vừa bấm
+ * @return Cấu hình sắp xếp sau khi cập nhật
+ */
+function createNextSortConfig(
+  previous: SortConfig,
+  field: SortField,
+): SortConfig {
+  return {
+    prioritySortField: field,
+    sortState: createNextSortState(previous.sortState, field),
+  };
+}
+
+/**
+ * Tạo danh sách các trang hiển thị theo quy chuẩn thiết kế:
+ * - Luôn hiển thị button trang đầu tiên (1) và trang cuối cùng (totalPages).
+ * - Hiển thị trang hiện tại, kèm trang ngay trước và trang ngay sau.
+ * - Ví dụ: đang ở trang 5 / tổng 15 trang => < 1 ... 4 5 6 ... 15 >
+ *
+ * @param currentPage Trang hiện tại
+ * @param totalPages Tổng số trang
+ * @return Mảng các số trang hiển thị
+ */
+function createVisiblePages(currentPage: number, totalPages: number): number[] {
+  if (totalPages <= 1) {
+    return [1];
+  }
+  const pages = new Set<number>();
+  pages.add(1);
+  if (currentPage - 1 >= 1) {
+    pages.add(currentPage - 1);
+  }
+  pages.add(currentPage);
+  if (currentPage + 1 <= totalPages) {
+    pages.add(currentPage + 1);
+  }
+  pages.add(totalPages);
+  return Array.from(pages).sort((a, b) => a - b);
+}
+
+/**
+ * Quản lý dữ liệu, tìm kiếm, sắp xếp ưu tiên động và phân trang của màn hình ADM002.
  *
  * @return Trạng thái màn hình và các hàm xử lý của ADM002
  */
@@ -87,9 +148,7 @@ export function useADM002() {
   const [searchParams, setSearchParams] = useState<EmployeeSearchFilter>(
     INITIAL_SEARCH_FILTER,
   );
-  const [sortState, setSortState] = useState<SortState>(INITIAL_SORT_STATE);
-  const [activeSortField, setActiveSortField] =
-    useState<SortField>('employeeName');
+  const [sortConfig, setSortConfig] = useState<SortConfig>(INITIAL_SORT_CONFIG);
 
   /**
    * Lấy danh sách phòng ban dùng cho điều kiện tìm kiếm.
@@ -106,17 +165,16 @@ export function useADM002() {
   }, []);
 
   /**
-   * Lấy danh sách nhân viên theo điều kiện tìm kiếm, sắp xếp và trang hiện tại.
+   * Lấy danh sách nhân viên theo điều kiện tìm kiếm, cấu hình sắp xếp và trang hiện tại.
+   * Cột prioritySortField là sort chính; hai cột còn lại giữ chiều đang lưu làm sort phụ.
    *
    * @param filter Điều kiện tìm kiếm nhân viên
-   * @param currentSortState Trạng thái chiều sắp xếp của các cột
-   * @param currentActiveSortField Cột đang được dùng để sắp xếp
+   * @param currentSortConfig Cấu hình sắp xếp hiện tại
    * @param page Trang cần lấy dữ liệu
    */
   const fetchEmployees = useCallback(async (
     filter: EmployeeSearchFilter,
-    currentSortState: SortState,
-    currentActiveSortField: SortField,
+    currentSortConfig: SortConfig,
     page: number,
   ) => {
     setLoading(true);
@@ -125,18 +183,10 @@ export function useADM002() {
     const params: GetEmployeesParams = {
       offset: (page - 1) * ADM002_PAGE_SIZE,
       limit: ADM002_PAGE_SIZE,
-      ord_employee_name:
-        currentActiveSortField === 'employeeName'
-          ? currentSortState.ordEmployeeName
-          : '',
-      ord_certification_name:
-        currentActiveSortField === 'certificationName'
-          ? currentSortState.ordCertificationName
-          : '',
-      ord_end_date:
-        currentActiveSortField === 'endDate'
-          ? currentSortState.ordEndDate
-          : '',
+      priority_sort: currentSortConfig.prioritySortField,
+      ord_employee_name: currentSortConfig.sortState.ordEmployeeName,
+      ord_certification_name: currentSortConfig.sortState.ordCertificationName,
+      ord_end_date: currentSortConfig.sortState.ordEndDate,
     };
 
     const normalizedFullname = filter.fullname.trim();
@@ -160,73 +210,63 @@ export function useADM002() {
     }
   }, []);
 
+  // Tải phòng ban một lần khi mount.
+  useEffect(() => {
+    void fetchDepartments();
+  }, [fetchDepartments]);
+
+  // Tải danh sách nhân viên mỗi khi filter/sắp xếp/trang thay đổi.
+  // Luôn dùng state đã commit mới nhất -> không còn stale closure.
+  useEffect(() => {
+    void fetchEmployees(searchParams, sortConfig, currentPage);
+  }, [fetchEmployees, searchParams, sortConfig, currentPage]);
+
   /**
-   * Áp dụng điều kiện tìm kiếm mới và tải lại dữ liệu từ trang đầu tiên.
+   * Áp dụng điều kiện tìm kiếm mới và quay về trang đầu tiên.
    *
    * @param filter Điều kiện tìm kiếm mới
    */
   const handleSearch = useCallback((filter: EmployeeSearchFilter) => {
-    const firstPage = 1;
     setSearchParams(filter);
-    setCurrentPage(firstPage);
-    void fetchEmployees(
-      filter,
-      sortState,
-      activeSortField,
-      firstPage,
-    );
-  }, [activeSortField, fetchEmployees, sortState]);
+    setCurrentPage(1);
+  }, []);
 
   /**
-   * Thay đổi chiều sắp xếp của cột được chọn và tải lại trang đầu tiên.
+   * Thay đổi sắp xếp theo mô hình ưu tiên động và quay về trang đầu tiên.
+   * Dùng functional update để luôn tính từ trạng thái mới nhất (tránh stale closure).
    *
    * @param field Cột được người dùng lựa chọn để sắp xếp
    */
   const handleSort = useCallback((field: SortField) => {
-    const firstPage = 1;
-    const nextSortState = createNextSortState(sortState, field);
-
-    setSortState(nextSortState);
-    setActiveSortField(field);
-    setCurrentPage(firstPage);
-    void fetchEmployees(searchParams, nextSortState, field, firstPage);
-  }, [fetchEmployees, searchParams, sortState]);
+    setSortConfig((previous) => createNextSortConfig(previous, field));
+    setCurrentPage(1);
+  }, []);
 
   /**
-   * Tải danh sách nhân viên của trang được lựa chọn.
+   * Chuyển đến trang được lựa chọn.
    *
    * @param page Trang cần chuyển đến
    */
   const handlePageChange = useCallback((page: number) => {
-    if (page === currentPage) {
-      return;
-    }
+    setCurrentPage((current) => (page === current ? current : page));
+  }, []);
 
-    setCurrentPage(page);
-    void fetchEmployees(searchParams, sortState, activeSortField, page);
-  }, [activeSortField, currentPage, fetchEmployees, searchParams, sortState]);
-
-  useEffect(() => {
-    void fetchDepartments();
-    void fetchEmployees(
-      INITIAL_SEARCH_FILTER,
-      INITIAL_SORT_STATE,
-      'employeeName',
-      1,
-    );
-  }, [fetchDepartments, fetchEmployees]);
+  const totalPages = Math.ceil(totalRecords / ADM002_PAGE_SIZE);
+  const visiblePages = createVisiblePages(currentPage, totalPages);
 
   return {
     departments,
     employees,
     totalRecords,
+    totalPages,
+    visiblePages,
     currentPage,
     loading,
     departmentError,
     employeeError,
     searchParams,
-    sortState,
-    activeSortField,
+    sortState: sortConfig.sortState,
+    prioritySortField: sortConfig.prioritySortField,
     handleSearch,
     handleSort,
     handlePageChange,

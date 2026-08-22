@@ -1,6 +1,11 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
+/**
+ * Component hiển thị thanh điều hướng đầu trang (Header) của ứng dụng.
+ *
+ * @return Giao diện Header
+ */
 const Header = () => {
   return (
     <nav className="nav-bar">

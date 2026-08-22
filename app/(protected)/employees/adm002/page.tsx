@@ -4,26 +4,26 @@ import { useAuth } from '@/hooks/useAuth';
 import { useADM002 } from '@/hooks/useADM002';
 import { EmployeeListForm } from '@/components/employee/EmployeeListForm';
 import { EmployeeTable } from '@/components/employee/EmployeeTable';
-import { EmployeePagination } from '@/components/employee/EmployeePagination';
 
 /**
- * Hiển thị màn hình tìm kiếm và danh sách nhân viên ADM002.
+ * Component trang hiển thị danh sách nhân viên ADM002.
  *
- * @return Giao diện màn hình ADM002
+ * @return Giao diện trang danh sách nhân viên
  */
 export default function EmployeeListPage() {
   useAuth();
   const {
     departments,
     employees,
-    totalRecords,
+    totalPages,
+    visiblePages,
     currentPage,
     loading,
     departmentError,
     employeeError,
     searchParams,
     sortState,
-    activeSortField,
+    prioritySortField,
     handleSearch,
     handleSort,
     handlePageChange,
@@ -40,18 +40,17 @@ export default function EmployeeListPage() {
       />
       <EmployeeTable
         employees={employees}
-        loading={loading}
-        error={employeeError}
+        isLoading={loading}
+        errorMessage={employeeError}
         currentPage={currentPage}
-        searchParams={searchParams}
-        sortState={sortState}
-        activeSortField={activeSortField}
-        onSort={handleSort}
-      />
-      <EmployeePagination
-        currentPage={currentPage}
-        totalRecords={totalRecords}
+        totalPages={totalPages}
+        visiblePages={visiblePages}
+        employeeNameSort={sortState.ordEmployeeName}
+        certificationSort={sortState.ordCertificationName}
+        endDateSort={sortState.ordEndDate}
+        prioritySortField={prioritySortField}
         onPageChange={handlePageChange}
+        onSortChange={handleSort}
       />
     </>
   );

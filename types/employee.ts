@@ -102,6 +102,8 @@ export interface EmployeeListDTO {
   role: EmployeeRole;
 }
 
+export type EmployeeListItem = EmployeeListDTO;
+
 export interface DepartmentDTO {
   departmentId: number;
   departmentName: string;
