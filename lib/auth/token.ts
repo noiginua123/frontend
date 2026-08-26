@@ -30,6 +30,7 @@ export function getToken(): { accessToken: string; tokenType: string } | null {
 export function removeToken(): void {
   sessionStorage.removeItem('access_token');
   sessionStorage.removeItem('token_type');
+  sessionStorage.removeItem('adm002_filter_state');
 }
 
 /**

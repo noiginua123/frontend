@@ -4,7 +4,7 @@ import React, { Fragment } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { EmployeeListItem, SortField, SortOrder } from '@/types/employee';
-import { formatEmployeeDate } from '@/utils/employee';
+import { formatEmployeeDate, truncateEmployeeName } from '@/utils/employee';
 
 interface Props {
   employees: EmployeeListItem[];
@@ -140,12 +140,12 @@ const EmployeeTable = ({
                     {e.employeeId}
                   </Link>
                 </div>
-                <div title={e.employeeName}>{e.employeeName}</div>
+                <div title={e.employeeName}>{truncateEmployeeName(e.employeeName)}</div>
                 <div>{formatEmployeeDate(e.employeeBirthDate)}</div>
                 <div>{e.departmentName ?? ''}</div>
-                <div>{e.employeeEmail ?? ''}</div>
+                <div title={e.employeeEmail ?? ''}>{truncateEmployeeName(e.employeeEmail)}</div>
                 <div>{e.employeeTelephone ?? ''}</div>
-                <div>{e.certificationName ?? ''}</div>
+                <div title={e.certificationName ?? ''}>{truncateEmployeeName(e.certificationName)}</div>
                 <div>{formatEmployeeDate(e.endDate)}</div>
                 <div>{e.score !== null && e.score !== undefined ? e.score : ''}</div>
               </Fragment>

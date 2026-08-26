@@ -1,5 +1,5 @@
 import { apiClient } from '@/lib/api/client';
-import { ListDepartmentResponse, ListEmployeeResponse } from '@/types/employee';
+import { ListEmployeeResponse } from '@/types/employee';
 
 export interface GetEmployeesParams {
   employee_name?: string;
@@ -10,16 +10,6 @@ export interface GetEmployeesParams {
   priority_sort?: string;
   offset?: number;
   limit?: number;
-}
-
-/**
- * Lấy danh sách các phòng ban.
- *
- * @return Danh sách phòng ban từ backend
- */
-export async function getDepartments(): Promise<ListDepartmentResponse> {
-  const response = await apiClient.get<ListDepartmentResponse>('/department');
-  return response.data;
 }
 
 /**

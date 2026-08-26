@@ -40,6 +40,8 @@ export const EmployeeListForm: React.FC<EmployeeListFormProps> = ({
   const {
     register,
     handleSubmit,
+    reset,
+    setFocus,
     formState: { errors },
   } = useForm<EmployeeSearchFormData>({
     resolver: zodResolver(employeeSearchSchema),
@@ -48,6 +50,19 @@ export const EmployeeListForm: React.FC<EmployeeListFormProps> = ({
       departmentId: initialDepartmentId,
     },
   });
+
+  // Tự động focus vào ô nhập tìm kiếm tên khi vừa vào màn hình
+  React.useEffect(() => {
+    setFocus('fullname');
+  }, [setFocus]);
+
+  // Đồng bộ giá trị input form khi initialFullname hoặc initialDepartmentId được khôi phục từ sessionStorage
+  React.useEffect(() => {
+    reset({
+      fullname: initialFullname,
+      departmentId: initialDepartmentId,
+    });
+  }, [initialFullname, initialDepartmentId, reset]);
 
   /**
    * Chuyển dữ liệu form đã được kiểm tra hợp lệ sang hàm tìm kiếm.
@@ -80,6 +95,7 @@ export const EmployeeListForm: React.FC<EmployeeListFormProps> = ({
             <div className="col-sm">
               <input
                 type="text"
+                autoFocus
                 maxLength={EMPLOYEE_NAME_MAX_LENGTH}
                 aria-invalid={Boolean(errors.fullname)}
                 {...register('fullname')}

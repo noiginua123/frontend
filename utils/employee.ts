@@ -1,19 +1,23 @@
 import { EMPLOYEE_NAME_DISPLAY_LENGTH } from '@/constants/adm002';
 
 /**
- * Rút gọn tên nhân viên từ 22 ký tự và giữ nguyên tên đầy đủ ở dữ liệu gốc.
+ * Rút gọn chuỗi văn bản (tên nhân viên, chứng chỉ...) khi vượt quá 20 ký tự và thêm dấu '...'.
  * Array.from được dùng để đếm đúng ký tự Unicode thay vì UTF-16 code unit.
  *
- * @param employeeName Tên nhân viên cần rút gọn
- * @return Tên nhân viên đã được định dạng để hiển thị
+ * @param text Chuỗi văn bản cần rút gọn
+ * @param maxLength Độ dài tối đa trước khi rút gọn (mặc định là EMPLOYEE_NAME_DISPLAY_LENGTH = 20)
+ * @return Chuỗi văn bản đã được định dạng để hiển thị
  */
-export function truncateEmployeeName(employeeName: string): string {
-  const characters = Array.from(employeeName);
-  if (characters.length < EMPLOYEE_NAME_DISPLAY_LENGTH) {
-    return employeeName;
+export function truncateEmployeeName(text?: string | null, maxLength: number = EMPLOYEE_NAME_DISPLAY_LENGTH): string {
+  if (!text) {
+    return '';
+  }
+  const characters = Array.from(text);
+  if (characters.length <= maxLength) {
+    return text;
   }
 
-  return `${characters.slice(0, EMPLOYEE_NAME_DISPLAY_LENGTH).join('')}...`;
+  return `${characters.slice(0, maxLength).join('')}...`;
 }
 
 /**

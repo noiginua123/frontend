@@ -2,12 +2,10 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   ADM002_MESSAGES,
   ADM002_PAGE_SIZE,
+  ADM002_SESSION_KEY,
 } from '@/constants/adm002';
-import {
-  getDepartments,
-  getEmployees,
-  GetEmployeesParams,
-} from '@/lib/api/employee.api';
+import { getDepartments } from '@/lib/api/department.api';
+import { getEmployees, GetEmployeesParams } from '@/lib/api/employee.api';
 import {
   DepartmentDTO,
   EmployeeListDTO,
@@ -43,6 +41,71 @@ const INITIAL_SORT_CONFIG: SortConfig = {
   prioritySortField: INITIAL_PRIORITY_SORT_FIELD,
   sortState: INITIAL_SORT_STATE,
 };
+
+/**
+ * Trạng thái bộ lọc và phân trang ADM002 được lưu vào sessionStorage.
+ */
+export interface ADM002SessionState {
+  currentPage: number;
+  searchParams: EmployeeSearchFilter;
+  sortConfig: SortConfig;
+}
+
+/**
+ * Đọc trạng thái ADM002 đã lưu từ sessionStorage (nếu có).
+ *
+ * @return Trạng thái ADM002 đã lưu hoặc null nếu không tồn tại
+ */
+function loadStoredADM002State(): ADM002SessionState | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  try {
+    const raw = window.sessionStorage.getItem(ADM002_SESSION_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as Partial<ADM002SessionState>;
+      if (parsed && typeof parsed === 'object') {
+        return {
+          currentPage:
+            typeof parsed.currentPage === 'number' && parsed.currentPage >= 1
+              ? parsed.currentPage
+              : 1,
+          searchParams: {
+            fullname:
+              typeof parsed.searchParams?.fullname === 'string'
+                ? parsed.searchParams.fullname
+                : '',
+            departmentId:
+              typeof parsed.searchParams?.departmentId === 'string'
+                ? parsed.searchParams.departmentId
+                : '',
+          },
+          sortConfig: {
+            prioritySortField:
+              parsed.sortConfig?.prioritySortField ?? INITIAL_PRIORITY_SORT_FIELD,
+            sortState: {
+              ordEmployeeName:
+                parsed.sortConfig?.sortState?.ordEmployeeName === 'DESC'
+                  ? 'DESC'
+                  : 'ASC',
+              ordCertificationName:
+                parsed.sortConfig?.sortState?.ordCertificationName === 'DESC'
+                  ? 'DESC'
+                  : 'ASC',
+              ordEndDate:
+                parsed.sortConfig?.sortState?.ordEndDate === 'DESC'
+                  ? 'DESC'
+                  : 'ASC',
+            },
+          },
+        };
+      }
+    }
+  } catch {
+    // Bỏ qua lỗi sessionStorage
+  }
+  return null;
+}
 
 /**
  * Đảo chiều sắp xếp giữa tăng dần và giảm dần.
@@ -141,14 +204,44 @@ export function useADM002() {
   const [departments, setDepartments] = useState<DepartmentDTO[]>([]);
   const [employees, setEmployees] = useState<EmployeeListDTO[]>([]);
   const [totalRecords, setTotalRecords] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [departmentError, setDepartmentError] = useState<string | null>(null);
   const [employeeError, setEmployeeError] = useState<string | null>(null);
-  const [searchParams, setSearchParams] = useState<EmployeeSearchFilter>(
-    INITIAL_SEARCH_FILTER,
-  );
-  const [sortConfig, setSortConfig] = useState<SortConfig>(INITIAL_SORT_CONFIG);
+
+  const [currentPage, setCurrentPage] = useState<number>(() => {
+    const stored = loadStoredADM002State();
+    return stored ? stored.currentPage : 1;
+  });
+
+  const [searchParams, setSearchParams] = useState<EmployeeSearchFilter>(() => {
+    const stored = loadStoredADM002State();
+    return stored ? stored.searchParams : INITIAL_SEARCH_FILTER;
+  });
+
+  const [sortConfig, setSortConfig] = useState<SortConfig>(() => {
+    const stored = loadStoredADM002State();
+    return stored ? stored.sortConfig : INITIAL_SORT_CONFIG;
+  });
+
+  // Tự động lưu trạng thái tìm kiếm, phân trang và sắp xếp vào sessionStorage
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    try {
+      const stateToSave: ADM002SessionState = {
+        currentPage,
+        searchParams,
+        sortConfig,
+      };
+      window.sessionStorage.setItem(
+        ADM002_SESSION_KEY,
+        JSON.stringify(stateToSave),
+      );
+    } catch {
+      // Bỏ qua lỗi sessionStorage quota
+    }
+  }, [currentPage, searchParams, sortConfig]);
 
   /**
    * Lấy danh sách phòng ban dùng cho điều kiện tìm kiếm.
