@@ -1,94 +1,82 @@
-// types/employee.ts
+import { EmployeeCertificationDTO } from './certification';
 
-// Backend/Database representation
-export interface EmployeeDB {
-  employee_id: number;
-  department_id: number;
-  employee_name: string; // Required
-  employee_name_kana?: string;
-  employee_birth_date?: string; // DATE format
-  employee_email: string; // Required
-  employee_telephone?: string;
-  employee_login_id: string; // Required, links to login users
-  employee_login_password?: string; // Not managed by frontend
-  employee_role: EmployeeRole;
+/**
+ * Vai trò của nhân viên trong hệ thống (0: Quản trị viên, 1: Nhân viên)
+ */
+export type EmployeeRole = 0 | 1;
+
+/**
+ * Chiều sắp xếp trong bảng (ASC: Tăng dần, DESC: Giảm dần)
+ */
+export type SortOrder = 'ASC' | 'DESC';
+
+/**
+ * Các cột có thể sắp xếp trên danh sách nhân viên
+ */
+export type SortField = 'employeeName' | 'certificationName' | 'endDate';
+
+/**
+ * Trạng thái chiều sắp xếp hiện tại của các cột
+ */
+export interface SortState {
+  ordEmployeeName: SortOrder;
+  ordCertificationName: SortOrder;
+  ordEndDate: SortOrder;
 }
 
-// Frontend display representation (as shown in UI)
-export interface Employee {
-  id: string; // Maps to employee_id
-  name: string; // Maps to employee_name (Required)
-  nameKana?: string; // Maps to employee_name_kana
-  dateOfBirth?: string; // Maps to employee_birth_date (YYYY-MM-DD)
-  group?: string; // Derived from department_id via department lookup
-  email: string; // Maps to employee_email (Required)
-  phone?: string; // Maps to employee_telephone
-  japaneseProficiency?: string; // Derived from certifications
-  expirationDate?: string; // Derived from employees_certifications.end_date (YYYY-MM-DD)
-  score?: number; // Derived from employees_certifications.score
+/**
+ * Điều kiện lọc tìm kiếm nhân viên trên form ADM002
+ */
+export interface EmployeeSearchFilter {
+  fullname: string;
+  departmentId: string;
 }
 
-// API request/response types
-export interface EmployeeCreateRequest {
-  employee_name: string; // Required
-  department_id: number; // Required
-  employee_email: string; // Required
-  employee_name_kana?: string;
-  employee_birth_date?: string; // DATE format
-  employee_telephone?: string;
-  employee_login_id: string; // Required
-  // Note: employee_login_password not included (managed separately)
-}
-
-export interface EmployeeUpdateRequest {
-  employee_id: number; // Required for PUT /employee (ID in request body, not path)
-  employee_name: string; // Required
-  department_id: number; // Required
-  employee_email: string; // Required
-  employee_name_kana?: string;
-  employee_birth_date?: string;
-  employee_telephone?: string;
-  employee_login_id: string; // Required
-}
-
-export interface EmployeeListResponse {
-  employees: Employee[]; // Frontend display format
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
-
+/**
+ * Tham số truy vấn danh sách nhân viên qua API GET /employee
+ */
 export interface EmployeeSearchParams {
-  name?: string; // Searches employee_name
-  group?: string; // Filters by department_id (via department lookup)
+  name?: string;
+  group?: string;
   page?: number;
   limit?: number;
 }
 
-// types/department.ts
-export interface Department {
-  department_id: number;
-  department_name: string;
-}
-
-// types/certification.ts
-export interface Certification {
-  certification_id: number;
-  certification_name: string;
-  certification_level: number;
-}
-
-export interface EmployeeCertification {
-  employee_certification_id: number;
+/**
+ * Cấu trúc bản ghi nhân viên trong cơ sở dữ liệu (Database Entity)
+ */
+export interface EmployeeDB {
   employee_id: number;
-  certification_id: number;
-  start_date: string; // DATE format
-  end_date: string; // DATE format
-  score: number; // DECIMAL
+  department_id: number;
+  employee_name: string;
+  employee_name_kana?: string;
+  employee_birth_date?: string;
+  employee_email: string;
+  employee_telephone?: string;
+  employee_login_id: string;
+  employee_login_password?: string;
+  employee_role?: EmployeeRole;
 }
 
-// Backend API DTOs & Responses
+/**
+ * Model biểu diễn thông tin nhân viên hiển thị trên giao diện (UI display model)
+ */
+export interface Employee {
+  id: string;
+  name: string;
+  nameKana?: string;
+  dateOfBirth?: string;
+  group?: string;
+  email: string;
+  phone?: string;
+  japaneseProficiency?: string;
+  expirationDate?: string;
+  score?: number;
+}
+
+/**
+ * DTO đại diện cho một bản ghi nhân viên trong danh sách trả về từ backend (API GET /employee)
+ */
 export interface EmployeeListDTO {
   employeeId: number;
   employeeName: string;
@@ -99,42 +87,102 @@ export interface EmployeeListDTO {
   certificationName?: string;
   endDate?: string;
   score?: number | null;
-  role: EmployeeRole;
+  role?: EmployeeRole;
 }
 
+/**
+ * Alias cho phần tử trong bảng danh sách nhân viên
+ */
 export type EmployeeListItem = EmployeeListDTO;
 
-export interface DepartmentDTO {
-  departmentId: number;
-  departmentName: string;
-}
-
-export interface ListDepartmentResponse {
-  code: number;
-  departments: DepartmentDTO[];
-}
-
+/**
+ * Cấu trúc response trả về từ API lấy danh sách nhân viên GET /employee
+ */
 export interface ListEmployeeResponse {
   code: number;
   totalRecords: number;
   employees: EmployeeListDTO[];
 }
 
-export type SortOrder = 'ASC' | 'DESC';
-
-export type EmployeeRole = 0 | 1;
-
-export type SortField = 'employeeName' | 'certificationName' | 'endDate';
-
-export interface EmployeeSearchFilter {
-  fullname: string;
-  departmentId: string;
+/**
+ * DTO dữ liệu phân trang danh sách nhân viên cho UI
+ */
+export interface EmployeeListResponse {
+  employees: Employee[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
-export interface SortState {
-  ordEmployeeName: SortOrder;
-  ordCertificationName: SortOrder;
-  ordEndDate: SortOrder;
+/**
+ * DTO thông tin chi tiết nhân viên từ API GET /employee/{id} (ADM003 / ADM004)
+ */
+export interface EmployeeDetailResponse {
+  code: number;
+  employeeId: number;
+  employeeName: string;
+  employeeBirthDate: string;
+  departmentId: number;
+  departmentName: string;
+  employeeEmail: string;
+  employeeTelephone: string;
+  employeeNameKana: string;
+  employeeLoginId: string;
+  certifications: EmployeeCertificationDTO[];
 }
 
+/**
+ * Payload request thêm mới nhân viên POST /employee (ADM004 / ADM005)
+ */
+export interface EmployeeCreateRequest {
+  employeeLoginId: string;
+  employeeName: string;
+  employeeNameKana: string;
+  employeeBirthDate: string;
+  employeeEmail: string;
+  employeeTelephone: string;
+  employeeLoginPassword?: string;
+  departmentId: number;
+  certifications?: EmployeeCertificationDTO[];
+}
 
+/**
+ * Payload request cập nhật thông tin nhân viên PUT /employee (ADM004 / ADM005)
+ */
+export interface EmployeeUpdateRequest {
+  employeeId: number;
+  employeeLoginId: string;
+  employeeName: string;
+  employeeNameKana: string;
+  employeeBirthDate: string;
+  employeeEmail: string;
+  employeeTelephone: string;
+  employeeLoginPassword?: string;
+  departmentId: number;
+  certifications?: EmployeeCertificationDTO[];
+}
+
+/**
+ * Response cho các thao tác thêm / sửa nhân viên
+ */
+export interface EmployeeMutationResponse {
+  code: number;
+  employeeId: number;
+  message?: {
+    code: string;
+    params: string[];
+  };
+}
+
+/**
+ * Response cho thao tác xóa nhân viên DELETE /employee/{id}
+ */
+export interface EmployeeDeleteResponse {
+  code: number;
+  employeeId: number;
+  message?: {
+    code: string;
+    params: string[];
+  };
+}

@@ -6,8 +6,8 @@ import {
 } from '@/constants/adm002';
 import { getDepartments } from '@/lib/api/department.api';
 import { getEmployees, GetEmployeesParams } from '@/lib/api/employee.api';
+import { DepartmentDTO } from '@/types/department';
 import {
-  DepartmentDTO,
   EmployeeListDTO,
   EmployeeSearchFilter,
   SortField,

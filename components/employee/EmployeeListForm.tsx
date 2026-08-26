@@ -9,7 +9,8 @@ import {
   EmployeeSearchFormData,
   employeeSearchSchema,
 } from '@/lib/validation/employee';
-import { DepartmentDTO, EmployeeSearchFilter } from '@/types/employee';
+import { DepartmentDTO } from '@/types/department';
+import { EmployeeSearchFilter } from '@/types/employee';
 
 interface EmployeeListFormProps {
   departments: DepartmentDTO[];

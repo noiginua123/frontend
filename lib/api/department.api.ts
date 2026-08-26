@@ -1,5 +1,5 @@
 import { apiClient } from '@/lib/api/client';
-import { ListDepartmentResponse } from '@/types/employee';
+import { ListDepartmentResponse } from '@/types/department';
 
 /**
  * Lấy danh sách tất cả các phòng ban trong hệ thống.

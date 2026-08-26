@@ -1149,18 +1149,18 @@ exports[`Page Snapshots renders RootLayout unchanged 1`] = `
                 class="nav-item"
               >
                 <a
-                  href="/employees/adm002"
+                  href="/logout"
                 >
-                  トップ
+                  ログアウト
                 </a>
               </li>
               <li
                 class="nav-item"
               >
                 <a
-                  href="/logout"
+                  href="/employees/adm002"
                 >
-                  ログアウト
+                  トップ
                 </a>
               </li>
             </ul>
