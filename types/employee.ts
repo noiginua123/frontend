@@ -20,6 +20,12 @@ export interface SortState {
   ordEndDate: SortOrder;
 }
 
+/** Cấu hình cột sort ưu tiên và chiều sort của từng cột. */
+export interface EmployeeSortConfig {
+  prioritySortField: SortField;
+  sortState: SortState;
+}
+
 /**
  * Điều kiện lọc tìm kiếm nhân viên trên form ADM002
  */

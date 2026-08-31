@@ -11,10 +11,11 @@ import { DepartmentDTO } from '@/types/department';
 import {
   EmployeeListDTO,
   EmployeeSearchFilter,
-  GetEmployeesParams,
+  EmployeeSortConfig,
   SortField,
   SortState,
 } from '@/types/employee';
+import { buildEmployeeQueryParams } from '@/utils/employee-query';
 import { createVisiblePages } from '@/utils/pagination';
 
 const INITIAL_SEARCH_FILTER: EmployeeSearchFilter = {
@@ -34,12 +35,7 @@ const INITIAL_PRIORITY_SORT_FIELD: SortField = 'employeeName';
  * Cấu hình sắp xếp: cột ưu tiên (sort chính) + chiều sắp xếp của cả 3 cột.
  * Gộp vào một state để quyết định toggle/switch luôn dựa trên trạng thái mới nhất.
  */
-interface SortConfig {
-  prioritySortField: SortField;
-  sortState: SortState;
-}
-
-const INITIAL_SORT_CONFIG: SortConfig = {
+const INITIAL_SORT_CONFIG: EmployeeSortConfig = {
   prioritySortField: INITIAL_PRIORITY_SORT_FIELD,
   sortState: INITIAL_SORT_STATE,
 };
@@ -50,7 +46,7 @@ const INITIAL_SORT_CONFIG: SortConfig = {
 export interface ADM002SessionState {
   currentPage: number;
   searchParams: EmployeeSearchFilter;
-  sortConfig: SortConfig;
+  sortConfig: EmployeeSortConfig;
 }
 
 /**
@@ -161,9 +157,9 @@ function createNextSortState(
  * @return Cấu hình sắp xếp sau khi cập nhật
  */
 function createNextSortConfig(
-  previous: SortConfig,
+  previous: EmployeeSortConfig,
   field: SortField,
-): SortConfig {
+): EmployeeSortConfig {
   return {
     prioritySortField: field,
     sortState: createNextSortState(previous.sortState, field),
@@ -193,7 +189,7 @@ export function useADM002() {
     return stored ? stored.searchParams : INITIAL_SEARCH_FILTER;
   });
 
-  const [sortConfig, setSortConfig] = useState<SortConfig>(() => {
+  const [sortConfig, setSortConfig] = useState<EmployeeSortConfig>(() => {
     const stored = loadStoredADM002State();
     return stored ? stored.sortConfig : INITIAL_SORT_CONFIG;
   });
@@ -242,28 +238,13 @@ export function useADM002() {
    */
   const fetchEmployees = useCallback(async (
     filter: EmployeeSearchFilter,
-    currentSortConfig: SortConfig,
+    currentSortConfig: EmployeeSortConfig,
     page: number,
   ) => {
     setLoading(true);
     setEmployeeError(null);
 
-    const params: GetEmployeesParams = {
-      offset: (page - 1) * ADM002_PAGE_SIZE,
-      limit: ADM002_PAGE_SIZE,
-      priority_sort: currentSortConfig.prioritySortField,
-      ord_employee_name: currentSortConfig.sortState.ordEmployeeName,
-      ord_certification_name: currentSortConfig.sortState.ordCertificationName,
-      ord_end_date: currentSortConfig.sortState.ordEndDate,
-    };
-
-    const normalizedFullname = filter.fullname.trim();
-    if (normalizedFullname) {
-      params.employee_name = normalizedFullname;
-    }
-    if (filter.departmentId) {
-      params.department_id = filter.departmentId;
-    }
+    const params = buildEmployeeQueryParams(filter, currentSortConfig, page);
 
     try {
       const response = await getEmployees(params);
