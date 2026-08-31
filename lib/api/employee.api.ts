@@ -1,16 +1,8 @@
 import { apiClient } from '@/lib/api/client';
-import { ListEmployeeResponse } from '@/types/employee';
-
-export interface GetEmployeesParams {
-  employee_name?: string;
-  department_id?: string | number;
-  ord_employee_name?: string;
-  ord_certification_name?: string;
-  ord_end_date?: string;
-  priority_sort?: string;
-  offset?: number;
-  limit?: number;
-}
+import type {
+  GetEmployeesParams,
+  ListEmployeeResponse,
+} from '@/types/employee';
 
 /**
  * Tìm kiếm và lấy danh sách nhân viên theo tiêu chí.

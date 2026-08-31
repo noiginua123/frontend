@@ -6,11 +6,12 @@ import {
 } from '@/constants/adm002';
 import { SORT_ORDER, SortOrder } from '@/constants/sort';
 import { getDepartments } from '@/lib/api/department.api';
-import { getEmployees, GetEmployeesParams } from '@/lib/api/employee.api';
+import { getEmployees } from '@/lib/api/employee.api';
 import { DepartmentDTO } from '@/types/department';
 import {
   EmployeeListDTO,
   EmployeeSearchFilter,
+  GetEmployeesParams,
   SortField,
   SortState,
 } from '@/types/employee';

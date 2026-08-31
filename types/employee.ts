@@ -29,12 +29,16 @@ export interface EmployeeSearchFilter {
 }
 
 /**
- * Tham số truy vấn danh sách nhân viên qua API GET /employee
+ * Tham số truy vấn danh sách nhân viên qua API GET /employee.
  */
-export interface EmployeeSearchParams {
-  name?: string;
-  group?: string;
-  page?: number;
+export interface GetEmployeesParams {
+  employee_name?: string;
+  department_id?: string | number;
+  ord_employee_name?: SortOrder;
+  ord_certification_name?: SortOrder;
+  ord_end_date?: SortOrder;
+  priority_sort?: SortField;
+  offset?: number;
   limit?: number;
 }
 
