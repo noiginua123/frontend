@@ -4,6 +4,7 @@ import {
   ADM002_PAGE_SIZE,
   ADM002_SESSION_KEY,
 } from '@/constants/adm002';
+import { SORT_ORDER, SortOrder } from '@/constants/sort';
 import { getDepartments } from '@/lib/api/department.api';
 import { getEmployees, GetEmployeesParams } from '@/lib/api/employee.api';
 import { DepartmentDTO } from '@/types/department';
@@ -11,7 +12,6 @@ import {
   EmployeeListDTO,
   EmployeeSearchFilter,
   SortField,
-  SortOrder,
   SortState,
 } from '@/types/employee';
 import { createVisiblePages } from '@/utils/pagination';
@@ -22,9 +22,9 @@ const INITIAL_SEARCH_FILTER: EmployeeSearchFilter = {
 };
 
 export const INITIAL_SORT_STATE: SortState = {
-  ordEmployeeName: 'ASC',
-  ordCertificationName: 'ASC',
-  ordEndDate: 'ASC',
+  ordEmployeeName: SORT_ORDER.ASC,
+  ordCertificationName: SORT_ORDER.ASC,
+  ordEndDate: SORT_ORDER.ASC,
 };
 
 const INITIAL_PRIORITY_SORT_FIELD: SortField = 'employeeName';
@@ -86,17 +86,17 @@ function loadStoredADM002State(): ADM002SessionState | null {
               parsed.sortConfig?.prioritySortField ?? INITIAL_PRIORITY_SORT_FIELD,
             sortState: {
               ordEmployeeName:
-                parsed.sortConfig?.sortState?.ordEmployeeName === 'DESC'
-                  ? 'DESC'
-                  : 'ASC',
+              parsed.sortConfig?.sortState?.ordEmployeeName === SORT_ORDER.DESC
+                  ? SORT_ORDER.DESC
+                  : SORT_ORDER.ASC,
               ordCertificationName:
-                parsed.sortConfig?.sortState?.ordCertificationName === 'DESC'
-                  ? 'DESC'
-                  : 'ASC',
+              parsed.sortConfig?.sortState?.ordCertificationName === SORT_ORDER.DESC
+                  ? SORT_ORDER.DESC
+                  : SORT_ORDER.ASC,
               ordEndDate:
-                parsed.sortConfig?.sortState?.ordEndDate === 'DESC'
-                  ? 'DESC'
-                  : 'ASC',
+              parsed.sortConfig?.sortState?.ordEndDate === SORT_ORDER.DESC
+                  ? SORT_ORDER.DESC
+                  : SORT_ORDER.ASC,
             },
           },
         };
@@ -115,7 +115,7 @@ function loadStoredADM002State(): ADM002SessionState | null {
  * @return Chiều sắp xếp tiếp theo
  */
 function toggleSortOrder(sortOrder: SortOrder): SortOrder {
-  return sortOrder === 'ASC' ? 'DESC' : 'ASC';
+  return sortOrder === SORT_ORDER.ASC ? SORT_ORDER.DESC : SORT_ORDER.ASC;
 }
 
 /**

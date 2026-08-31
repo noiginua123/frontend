@@ -1,14 +1,10 @@
 import { EmployeeCertificationDTO } from './certification';
+import { SortOrder } from '@/constants/sort';
 
 /**
  * Vai trò của nhân viên trong hệ thống (0: Quản trị viên, 1: Nhân viên)
  */
 export type EmployeeRole = 0 | 1;
-
-/**
- * Chiều sắp xếp trong bảng (ASC: Tăng dần, DESC: Giảm dần)
- */
-export type SortOrder = 'ASC' | 'DESC';
 
 /**
  * Các cột có thể sắp xếp trên danh sách nhân viên

@@ -3,7 +3,8 @@
 import React, { Fragment } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { EmployeeListItem, SortField, SortOrder } from '@/types/employee';
+import { SORT_ORDER, SortOrder } from '@/constants/sort';
+import { EmployeeListItem, SortField } from '@/types/employee';
 import { formatEmployeeDate, truncateEmployeeName } from '@/utils/employee';
 
 interface Props {
@@ -65,7 +66,7 @@ const EmployeeTable = ({
    * @return Chuỗi nhãn kèm biểu tượng sắp xếp
    */
   const renderSortLabel = (label: string, sortOrder: SortOrder) => {
-    const icon = sortOrder === 'ASC' ? '▲▽' : '▼△';
+    const icon = sortOrder === SORT_ORDER.ASC ? '▲▽' : '▼△';
     return `${label} ${icon}`;
   };
 
