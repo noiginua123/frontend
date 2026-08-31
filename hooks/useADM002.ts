@@ -14,6 +14,7 @@ import {
   SortOrder,
   SortState,
 } from '@/types/employee';
+import { createVisiblePages } from '@/utils/pagination';
 
 const INITIAL_SEARCH_FILTER: EmployeeSearchFilter = {
   fullname: '',
@@ -166,33 +167,6 @@ function createNextSortConfig(
     prioritySortField: field,
     sortState: createNextSortState(previous.sortState, field),
   };
-}
-
-/**
- * Tạo danh sách các trang hiển thị theo quy chuẩn thiết kế:
- * - Luôn hiển thị button trang đầu tiên (1) và trang cuối cùng (totalPages).
- * - Hiển thị trang hiện tại, kèm trang ngay trước và trang ngay sau.
- * - Ví dụ: đang ở trang 5 / tổng 15 trang => < 1 ... 4 5 6 ... 15 >
- *
- * @param currentPage Trang hiện tại
- * @param totalPages Tổng số trang
- * @return Mảng các số trang hiển thị
- */
-function createVisiblePages(currentPage: number, totalPages: number): number[] {
-  if (totalPages <= 1) {
-    return [1];
-  }
-  const pages = new Set<number>();
-  pages.add(1);
-  if (currentPage - 1 >= 1) {
-    pages.add(currentPage - 1);
-  }
-  pages.add(currentPage);
-  if (currentPage + 1 <= totalPages) {
-    pages.add(currentPage + 1);
-  }
-  pages.add(totalPages);
-  return Array.from(pages).sort((a, b) => a - b);
 }
 
 /**
