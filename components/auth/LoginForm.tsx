@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { apiClient } from '@/lib/api/client';
 import { storeToken } from '@/lib/auth/token';
 import { loginSchema, LoginForm as LoginFormType } from '@/lib/validation/auth';
+import { LoginResponse } from '@/types/auth';
 
 /**
  * Component form đăng nhập hệ thống ADM001.
@@ -25,7 +26,7 @@ export default function LoginForm() {
    */
   const onSubmit = async (data: LoginFormType) => {
     try {
-      const response = await apiClient.post<{ accessToken: string; tokenType: string }>('/login', data);
+      const response = await apiClient.post<LoginResponse>('/login', data);
       storeToken(response.data.accessToken, response.data.tokenType);
       router.push('/employees/adm002');
     } catch (error) {

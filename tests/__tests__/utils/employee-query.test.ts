@@ -1,5 +1,5 @@
 import { SORT_ORDER } from '@/constants/sort';
-import { buildEmployeeQueryParams } from '@/utils/employee-query';
+import { buildEmployeeQueryParams } from '@/utils/query';
 
 const sortConfig = {
   prioritySortField: 'employeeName' as const,

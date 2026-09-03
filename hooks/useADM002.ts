@@ -2,9 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   ADM002_MESSAGES,
   ADM002_PAGE_SIZE,
-  ADM002_SESSION_KEY,
 } from '@/constants/adm002';
-import { SORT_ORDER, SortOrder } from '@/constants/sort';
 import { getDepartments } from '@/lib/api/department.api';
 import { getEmployees } from '@/lib/api/employee.api';
 import { DepartmentDTO } from '@/types/department';
@@ -13,211 +11,72 @@ import {
   EmployeeSearchFilter,
   EmployeeSortConfig,
   SortField,
-  SortState,
 } from '@/types/employee';
-import { buildEmployeeQueryParams } from '@/utils/employee-query';
+import {
+  createNextSortConfig,
+  INITIAL_SORT_CONFIG,
+  INITIAL_SORT_STATE,
+} from '@/utils/sort';
+import {
+  ADM002SessionState,
+  loadStoredADM002State,
+  saveStoredADM002State,
+} from '@/utils/storage';
+import { buildEmployeeQueryParams } from '@/utils/query';
 import { createVisiblePages } from '@/utils/pagination';
+
+export { INITIAL_SORT_STATE };
+export type { ADM002SessionState };
 
 const INITIAL_SEARCH_FILTER: EmployeeSearchFilter = {
   fullname: '',
   departmentId: '',
 };
 
-export const INITIAL_SORT_STATE: SortState = {
-  ordEmployeeName: SORT_ORDER.ASC,
-  ordCertificationName: SORT_ORDER.ASC,
-  ordEndDate: SORT_ORDER.ASC,
-};
-
-const INITIAL_PRIORITY_SORT_FIELD: SortField = 'employeeName';
-
 /**
- * Cấu hình sắp xếp: cột ưu tiên (sort chính) + chiều sắp xếp của cả 3 cột.
- * Gộp vào một state để quyết định toggle/switch luôn dựa trên trạng thái mới nhất.
- */
-const INITIAL_SORT_CONFIG: EmployeeSortConfig = {
-  prioritySortField: INITIAL_PRIORITY_SORT_FIELD,
-  sortState: INITIAL_SORT_STATE,
-};
-
-/**
- * Trạng thái bộ lọc và phân trang ADM002 được lưu vào sessionStorage.
- */
-export interface ADM002SessionState {
-  currentPage: number;
-  searchParams: EmployeeSearchFilter;
-  sortConfig: EmployeeSortConfig;
-}
-
-/**
- * Đọc trạng thái ADM002 đã lưu từ sessionStorage (nếu có).
+ * Custom Hook quản lý dữ liệu, tìm kiếm, phân trang và sắp xếp màn hình ADM002.
  *
- * @return Trạng thái ADM002 đã lưu hoặc null nếu không tồn tại
- */
-function loadStoredADM002State(): ADM002SessionState | null {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-  try {
-    const raw = window.sessionStorage.getItem(ADM002_SESSION_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw) as Partial<ADM002SessionState>;
-      if (parsed && typeof parsed === 'object') {
-        return {
-          currentPage:
-            typeof parsed.currentPage === 'number' && parsed.currentPage >= 1
-              ? parsed.currentPage
-              : 1,
-          searchParams: {
-            fullname:
-              typeof parsed.searchParams?.fullname === 'string'
-                ? parsed.searchParams.fullname
-                : '',
-            departmentId:
-              typeof parsed.searchParams?.departmentId === 'string'
-                ? parsed.searchParams.departmentId
-                : '',
-          },
-          sortConfig: {
-            prioritySortField:
-              parsed.sortConfig?.prioritySortField ?? INITIAL_PRIORITY_SORT_FIELD,
-            sortState: {
-              ordEmployeeName:
-              parsed.sortConfig?.sortState?.ordEmployeeName === SORT_ORDER.DESC
-                  ? SORT_ORDER.DESC
-                  : SORT_ORDER.ASC,
-              ordCertificationName:
-              parsed.sortConfig?.sortState?.ordCertificationName === SORT_ORDER.DESC
-                  ? SORT_ORDER.DESC
-                  : SORT_ORDER.ASC,
-              ordEndDate:
-              parsed.sortConfig?.sortState?.ordEndDate === SORT_ORDER.DESC
-                  ? SORT_ORDER.DESC
-                  : SORT_ORDER.ASC,
-            },
-          },
-        };
-      }
-    }
-  } catch {
-    // Bỏ qua lỗi sessionStorage
-  }
-  return null;
-}
-
-/**
- * Đảo chiều sắp xếp giữa tăng dần và giảm dần.
- *
- * @param sortOrder Chiều sắp xếp hiện tại
- * @return Chiều sắp xếp tiếp theo
- */
-function toggleSortOrder(sortOrder: SortOrder): SortOrder {
-  return sortOrder === SORT_ORDER.ASC ? SORT_ORDER.DESC : SORT_ORDER.ASC;
-}
-
-/**
- * Tạo trạng thái sắp xếp mới cho cột được người dùng lựa chọn (đảo chiều cột đó).
- *
- * @param currentSortState Trạng thái sắp xếp hiện tại
- * @param field Cột cần thay đổi chiều sắp xếp
- * @return Trạng thái sắp xếp sau khi cập nhật
- */
-function createNextSortState(
-  currentSortState: SortState,
-  field: SortField,
-): SortState {
-  if (field === 'employeeName') {
-    return {
-      ...currentSortState,
-      ordEmployeeName: toggleSortOrder(currentSortState.ordEmployeeName),
-    };
-  }
-  if (field === 'certificationName') {
-    return {
-      ...currentSortState,
-      ordCertificationName: toggleSortOrder(
-        currentSortState.ordCertificationName,
-      ),
-    };
-  }
-  return {
-    ...currentSortState,
-    ordEndDate: toggleSortOrder(currentSortState.ordEndDate),
-  };
-}
-
-/**
- * Tính cấu hình sắp xếp kế tiếp theo mô hình ưu tiên động:
- * - Cột vừa được bấm sẽ trở thành cột ưu tiên chính (prioritySortField).
- * - Cột vừa bấm luôn được đảo chiều (ASC <-> DESC) so với trạng thái hiện tại của nó.
- * - Hai cột còn lại giữ nguyên chiều sắp xếp đang lưu trong sortState.
- *
- * @param previous Cấu hình sắp xếp hiện tại
- * @param field Cột người dùng vừa bấm
- * @return Cấu hình sắp xếp sau khi cập nhật
- */
-function createNextSortConfig(
-  previous: EmployeeSortConfig,
-  field: SortField,
-): EmployeeSortConfig {
-  return {
-    prioritySortField: field,
-    sortState: createNextSortState(previous.sortState, field),
-  };
-}
-
-/**
- * Quản lý dữ liệu, tìm kiếm, sắp xếp ưu tiên động và phân trang của màn hình ADM002.
- *
- * @return Trạng thái màn hình và các hàm xử lý của ADM002
+ * @return Trạng thái màn hình và các hàm xử lý sự kiện
  */
 export function useADM002() {
   const [departments, setDepartments] = useState<DepartmentDTO[]>([]);
   const [employees, setEmployees] = useState<EmployeeListDTO[]>([]);
-  const [totalRecords, setTotalRecords] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [totalRecords, setTotalRecords] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
   const [departmentError, setDepartmentError] = useState<string | null>(null);
   const [employeeError, setEmployeeError] = useState<string | null>(null);
 
-  const [currentPage, setCurrentPage] = useState<number>(() => {
-    const stored = loadStoredADM002State();
-    return stored ? stored.currentPage : 1;
-  });
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [searchParams, setSearchParams] = useState<EmployeeSearchFilter>(INITIAL_SEARCH_FILTER);
+  const [sortConfig, setSortConfig] = useState<EmployeeSortConfig>(INITIAL_SORT_CONFIG);
+  const [isRestored, setIsRestored] = useState<boolean>(false);
 
-  const [searchParams, setSearchParams] = useState<EmployeeSearchFilter>(() => {
-    const stored = loadStoredADM002State();
-    return stored ? stored.searchParams : INITIAL_SEARCH_FILTER;
-  });
-
-  const [sortConfig, setSortConfig] = useState<EmployeeSortConfig>(() => {
-    const stored = loadStoredADM002State();
-    return stored ? stored.sortConfig : INITIAL_SORT_CONFIG;
-  });
-
-  // Tự động lưu trạng thái tìm kiếm, phân trang và sắp xếp vào sessionStorage
+  // Khôi phục trạng thái bộ lọc từ sessionStorage sau khi mount trên Client
   useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
+    const stored = loadStoredADM002State();
+    if (stored) {
+      setCurrentPage(stored.currentPage);
+      setSearchParams(stored.searchParams);
+      setSortConfig(stored.sortConfig);
     }
-    try {
-      const stateToSave: ADM002SessionState = {
+    setIsRestored(true);
+  }, []);
+
+  // Tự động đồng bộ state vào sessionStorage khi có thay đổi
+  useEffect(() => {
+    if (isRestored) {
+      saveStoredADM002State({
         currentPage,
         searchParams,
         sortConfig,
-      };
-      window.sessionStorage.setItem(
-        ADM002_SESSION_KEY,
-        JSON.stringify(stateToSave),
-      );
-    } catch {
-      // Bỏ qua lỗi sessionStorage quota
+      });
     }
-  }, [currentPage, searchParams, sortConfig]);
+  }, [currentPage, searchParams, sortConfig, isRestored]);
 
   /**
-   * Lấy danh sách phòng ban dùng cho điều kiện tìm kiếm.
+   * Gọi API lấy danh sách phòng ban cho dropdown tìm kiếm.
    */
-  const fetchDepartments = useCallback(async () => {
+  const fetchDepartments = useCallback(async (): Promise<void> => {
     setDepartmentError(null);
     try {
       const response = await getDepartments();
@@ -229,18 +88,17 @@ export function useADM002() {
   }, []);
 
   /**
-   * Lấy danh sách nhân viên theo điều kiện tìm kiếm, cấu hình sắp xếp và trang hiện tại.
-   * Cột prioritySortField là sort chính; hai cột còn lại giữ chiều đang lưu làm sort phụ.
+   * Gọi API lấy danh sách nhân viên theo điều kiện lọc, sắp xếp và phân trang.
    *
-   * @param filter Điều kiện tìm kiếm nhân viên
+   * @param filter Điều kiện tìm kiếm (Tên nhân viên, Phòng ban)
    * @param currentSortConfig Cấu hình sắp xếp hiện tại
-   * @param page Trang cần lấy dữ liệu
+   * @param page Số trang cần lấy dữ liệu
    */
   const fetchEmployees = useCallback(async (
     filter: EmployeeSearchFilter,
     currentSortConfig: EmployeeSortConfig,
     page: number,
-  ) => {
+  ): Promise<void> => {
     setLoading(true);
     setEmployeeError(null);
 
@@ -259,45 +117,45 @@ export function useADM002() {
     }
   }, []);
 
-  // Tải phòng ban một lần khi mount.
+  // Tải danh sách phòng ban 1 lần khi khởi tạo
   useEffect(() => {
     void fetchDepartments();
   }, [fetchDepartments]);
 
-  // Tải danh sách nhân viên mỗi khi filter/sắp xếp/trang thay đổi.
-  // Luôn dùng state đã commit mới nhất -> không còn stale closure.
+  // Tải danh sách nhân viên khi filter, sort hoặc trang thay đổi
   useEffect(() => {
-    void fetchEmployees(searchParams, sortConfig, currentPage);
-  }, [fetchEmployees, searchParams, sortConfig, currentPage]);
+    if (isRestored) {
+      void fetchEmployees(searchParams, sortConfig, currentPage);
+    }
+  }, [fetchEmployees, searchParams, sortConfig, currentPage, isRestored]);
 
   /**
-   * Áp dụng điều kiện tìm kiếm mới và quay về trang đầu tiên.
+   * Cập nhật điều kiện tìm kiếm mới và quay về trang 1.
    *
-   * @param filter Điều kiện tìm kiếm mới
+   * @param filter Điều kiện tìm kiếm từ form
    */
-  const handleSearch = useCallback((filter: EmployeeSearchFilter) => {
+  const handleSearch = useCallback((filter: EmployeeSearchFilter): void => {
     setSearchParams(filter);
     setCurrentPage(1);
   }, []);
 
   /**
-   * Thay đổi sắp xếp theo mô hình ưu tiên động và quay về trang đầu tiên.
-   * Dùng functional update để luôn tính từ trạng thái mới nhất (tránh stale closure).
+   * Thay đổi cột sắp xếp ưu tiên và quay về trang 1.
    *
-   * @param field Cột được người dùng lựa chọn để sắp xếp
+   * @param field Cột được click chọn sắp xếp
    */
-  const handleSort = useCallback((field: SortField) => {
-    setSortConfig((previous) => createNextSortConfig(previous, field));
+  const handleSort = useCallback((field: SortField): void => {
+    setSortConfig((previousConfig) => createNextSortConfig(previousConfig, field));
     setCurrentPage(1);
   }, []);
 
   /**
-   * Chuyển đến trang được lựa chọn.
+   * Chuyển đến trang được chọn.
    *
-   * @param page Trang cần chuyển đến
+   * @param page Số trang đích
    */
-  const handlePageChange = useCallback((page: number) => {
-    setCurrentPage((current) => (page === current ? current : page));
+  const handlePageChange = useCallback((page: number): void => {
+    setCurrentPage((currentPageValue) => (page === currentPageValue ? currentPageValue : page));
   }, []);
 
   const totalPages = Math.ceil(totalRecords / ADM002_PAGE_SIZE);

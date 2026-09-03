@@ -1,25 +1,4 @@
 /**
- * Thông tin bảng trình độ chứng chỉ tiếng Nhật (Database / Domain model)
- */
-export interface Certification {
-  certification_id: number;
-  certification_name: string;
-  certification_level: number;
-}
-
-/**
- * Thông tin bảng quan hệ nhân viên và chứng chỉ (Database / Domain model)
- */
-export interface EmployeeCertification {
-  employee_certification_id: number;
-  employee_id: number;
-  certification_id: number;
-  start_date: string; // Định dạng yyyy/MM/dd
-  end_date: string;   // Định dạng yyyy/MM/dd
-  score: number;
-}
-
-/**
  * Data Transfer Object cho chứng chỉ tiếng Nhật (API GET /certifications)
  */
 export interface CertificationDTO {

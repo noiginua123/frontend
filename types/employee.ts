@@ -49,38 +49,6 @@ export interface GetEmployeesParams {
 }
 
 /**
- * Cấu trúc bản ghi nhân viên trong cơ sở dữ liệu (Database Entity)
- */
-export interface EmployeeDB {
-  employee_id: number;
-  department_id: number;
-  employee_name: string;
-  employee_name_kana?: string;
-  employee_birth_date?: string;
-  employee_email: string;
-  employee_telephone?: string;
-  employee_login_id: string;
-  employee_login_password?: string;
-  employee_role?: EmployeeRole;
-}
-
-/**
- * Model biểu diễn thông tin nhân viên hiển thị trên giao diện (UI display model)
- */
-export interface Employee {
-  id: string;
-  name: string;
-  nameKana?: string;
-  dateOfBirth?: string;
-  group?: string;
-  email: string;
-  phone?: string;
-  japaneseProficiency?: string;
-  expirationDate?: string;
-  score?: number;
-}
-
-/**
  * DTO đại diện cho một bản ghi nhân viên trong danh sách trả về từ backend (API GET /employee)
  */
 export interface EmployeeListDTO {
@@ -108,17 +76,6 @@ export interface ListEmployeeResponse {
   code: number;
   totalRecords: number;
   employees: EmployeeListDTO[];
-}
-
-/**
- * DTO dữ liệu phân trang danh sách nhân viên cho UI
- */
-export interface EmployeeListResponse {
-  employees: Employee[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
 }
 
 /**

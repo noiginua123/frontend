@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { removeToken } from '@/lib/auth/token';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -35,8 +36,7 @@ export function setupInterceptors(client: ReturnType<typeof axios.create>) {
     (response) => response,
     (error) => {
       if (error.response?.status === 401) {
-        sessionStorage.removeItem('access_token');
-        sessionStorage.removeItem('token_type');
+        removeToken();
         if (typeof window !== 'undefined') {
           window.location.href = '/login';
         }
@@ -49,4 +49,3 @@ export function setupInterceptors(client: ReturnType<typeof axios.create>) {
 setupInterceptors(apiClient);
 
 export { apiClient };
-

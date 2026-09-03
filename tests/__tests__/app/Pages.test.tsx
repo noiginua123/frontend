@@ -11,6 +11,7 @@ import RootLayout from '@/app/layout';
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
     push: jest.fn(),
+    replace: jest.fn(),
   }),
   usePathname: () => '/', // Mock pathname for layout test
   useSearchParams: () => new URLSearchParams(),

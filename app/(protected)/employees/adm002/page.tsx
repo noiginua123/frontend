@@ -1,16 +1,15 @@
 'use client';
 
+import React, { Suspense } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useADM002 } from '@/hooks/useADM002';
 import { EmployeeListForm } from '@/components/employee/EmployeeListForm';
 import { EmployeeTable } from '@/components/employee/EmployeeTable';
 
 /**
- * Component trang hiển thị danh sách nhân viên ADM002.
- *
- * @return Giao diện trang danh sách nhân viên
+ * Nội dung hiển thị danh sách nhân viên ADM002.
  */
-export default function EmployeeListPage() {
+function EmployeeListContent() {
   useAuth();
   const {
     departments,
@@ -53,5 +52,18 @@ export default function EmployeeListPage() {
         onSortChange={handleSort}
       />
     </>
+  );
+}
+
+/**
+ * Component trang hiển thị danh sách nhân viên ADM002 bọc trong Suspense Boundary.
+ *
+ * @return Giao diện trang danh sách nhân viên
+ */
+export default function EmployeeListPage() {
+  return (
+    <Suspense fallback={null}>
+      <EmployeeListContent />
+    </Suspense>
   );
 }
