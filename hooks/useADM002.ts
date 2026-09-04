@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   ADM002_MESSAGES,
   ADM002_PAGE_SIZE,
 } from '@/constants/adm002';
+import { ADM004_ROUTES } from '@/constants/adm004';
+import { clearEmployeeFormData } from '@/utils/employeeForm';
 import { getDepartments } from '@/lib/api/department.api';
 import { getEmployees } from '@/lib/api/employee.api';
 import { DepartmentDTO } from '@/types/department';
@@ -158,6 +161,16 @@ export function useADM002() {
     setCurrentPage((currentPageValue) => (page === currentPageValue ? currentPageValue : page));
   }, []);
 
+  const router = useRouter();
+
+  /**
+   * Chuyển hướng sang màn hình thêm mới nhân viên ADM004 (xóa form tạm cũ nếu có).
+   */
+  const handleNavigateToAdd = useCallback((): void => {
+    clearEmployeeFormData();
+    router.push(ADM004_ROUTES.input);
+  }, [router]);
+
   const totalPages = Math.ceil(totalRecords / ADM002_PAGE_SIZE);
   const visiblePages = createVisiblePages(currentPage, totalPages);
 
@@ -177,5 +190,6 @@ export function useADM002() {
     handleSearch,
     handleSort,
     handlePageChange,
+    handleNavigateToAdd,
   };
 }

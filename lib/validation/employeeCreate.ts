@@ -10,9 +10,8 @@ const SCORE_MAX_LENGTH = 3;
 const DATE_FORMAT = 'yyyy/MM/dd';
 const EMAIL_FORMAT_TOKEN = 'email';
 
-// Regex đồng bộ với backend. Katakana dùng full-width + half-width + dấu cách
-// để khớp dữ liệu seed (ví dụ 'グエン ティ マイ フオン'); có thể chỉnh trong README.
-const KATAKANA_REGEX = /^[\u30A0-\u30FF\uFF66-\uFF9F\u3000 ]+$/;
+// Regex chỉ cho phép Katakana half-size (半角カタカナ \uFF65-\uFF9F) và khoảng trắng half-width
+const KATAKANA_REGEX = /^[\uFF65-\uFF9F ]+$/;
 const HALF_SIZE_REGEX = /^[\u0020-\u007E]+$/;
 const LOGIN_ID_REGEX = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 const DIGITS_REGEX = /^[0-9]+$/;

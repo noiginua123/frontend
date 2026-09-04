@@ -574,7 +574,7 @@ exports[`Page Snapshots renders EmployeeEditPage unchanged 1`] = `
             class="col-sm col-sm-10"
           >
             <div
-              class="datepicker-wrapper"
+              class="datepicker-wrapper disabled"
             >
               <div
                 class="react-datepicker-wrapper"
@@ -584,6 +584,7 @@ exports[`Page Snapshots renders EmployeeEditPage unchanged 1`] = `
                 >
                   <input
                     class="form-control "
+                    disabled=""
                     placeholder="yyyy/MM/dd"
                     type="text"
                     value=""
@@ -612,7 +613,7 @@ exports[`Page Snapshots renders EmployeeEditPage unchanged 1`] = `
             class="col-sm col-sm-10"
           >
             <div
-              class="datepicker-wrapper"
+              class="datepicker-wrapper disabled"
             >
               <div
                 class="react-datepicker-wrapper"
@@ -622,6 +623,7 @@ exports[`Page Snapshots renders EmployeeEditPage unchanged 1`] = `
                 >
                   <input
                     class="form-control "
+                    disabled=""
                     placeholder="yyyy/MM/dd"
                     type="text"
                     value=""
@@ -651,6 +653,7 @@ exports[`Page Snapshots renders EmployeeEditPage unchanged 1`] = `
           >
             <input
               class="form-control "
+              disabled=""
               name="certificationScore"
               type="text"
             />

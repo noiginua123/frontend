@@ -26,6 +26,7 @@ function EmployeeListContent() {
     handleSearch,
     handleSort,
     handlePageChange,
+    handleNavigateToAdd,
   } = useADM002();
 
   return (
@@ -34,6 +35,7 @@ function EmployeeListContent() {
         departments={departments}
         departmentError={departmentError}
         onSearch={handleSearch}
+        onAddNew={handleNavigateToAdd}
         initialFullname={searchParams.fullname}
         initialDepartmentId={searchParams.departmentId}
       />

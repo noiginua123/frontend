@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { EMPLOYEE_NAME_MAX_LENGTH } from '@/constants/adm002';
@@ -16,6 +15,7 @@ interface EmployeeListFormProps {
   departments: DepartmentDTO[];
   departmentError: string | null;
   onSearch: (filter: EmployeeSearchFilter) => void;
+  onAddNew?: () => void;
   initialFullname?: string;
   initialDepartmentId?: string;
 }
@@ -26,6 +26,7 @@ interface EmployeeListFormProps {
  * @param departments Danh sách phòng ban dùng cho combobox
  * @param departmentError Thông báo lỗi khi không lấy được phòng ban
  * @param onSearch Hàm xử lý khi người dùng thực hiện tìm kiếm
+ * @param onAddNew Hàm xử lý chuyển hướng khi bấm nút thêm mới
  * @param initialFullname Tên nhân viên được khởi tạo trên form
  * @param initialDepartmentId ID phòng ban được khởi tạo trên form
  * @return Form tìm kiếm nhân viên ADM002
@@ -34,10 +35,10 @@ export const EmployeeListForm: React.FC<EmployeeListFormProps> = ({
   departments,
   departmentError,
   onSearch,
+  onAddNew,
   initialFullname = '',
   initialDepartmentId = '',
 }) => {
-  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -72,13 +73,6 @@ export const EmployeeListForm: React.FC<EmployeeListFormProps> = ({
    */
   const handleSearch = (formData: EmployeeSearchFormData) => {
     onSearch(formData);
-  };
-
-  /**
-   * Chuyển sang màn hình đăng ký nhân viên ADM004.
-   */
-  const handleAddEmployee = () => {
-    router.push('/employees/adm004');
   };
 
   return (
@@ -130,7 +124,7 @@ export const EmployeeListForm: React.FC<EmployeeListFormProps> = ({
               </button>
               <button
                 type="button"
-                onClick={handleAddEmployee}
+                onClick={onAddNew}
                 className="btn btn-secondary btn-sm"
               >
                 新規追加

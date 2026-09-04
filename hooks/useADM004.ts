@@ -1,14 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 
 import { getDepartments } from '@/lib/api/department.api';
 import { getCertifications } from '@/lib/api/certification.api';
 import { validateEmployeeCreate, transformCreatePayload } from '@/lib/api/employee.api';
 import { employeeCreateSchema, type EmployeeCreateFormData } from '@/lib/validation/employeeCreate';
-import { saveEmployeeFormData, loadEmployeeFormData } from '@/utils/employeeForm';
+import { saveEmployeeFormData, loadEmployeeFormData, clearEmployeeFormData } from '@/utils/employeeForm';
 import {
   ADM004_ROUTES,
   ADM004_MESSAGES,
@@ -72,47 +72,97 @@ function resolveField(code: string, params: (string | number)[]): string | null 
  */
 export function useADM004() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const mode = searchParams?.get('mode');
+  const id = searchParams?.get('id');
+
   const [departments, setDepartments] = useState<DepartmentDTO[]>([]);
   const [certifications, setCertifications] = useState<CertificationDTO[]>([]);
   const [globalError, setGlobalError] = useState<string>('');
 
   const form = useForm<EmployeeCreateFormData>({
-    resolver: zodResolver(employeeCreateSchema),
-    mode: 'onTouched',
-    reValidateMode: 'onChange',
+    // resolver: zodResolver(employeeCreateSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onBlur',
     defaultValues: DEFAULT_FORM_VALUES,
   });
 
-  useEffect(() => {
-    let mounted = true;
-
-    (async () => {
-      try {
-        const [departmentRes, certificationRes] = await Promise.all([
-          getDepartments(),
-          getCertifications(),
-        ]);
-        if (!mounted) {
-          return;
-        }
-        setDepartments(departmentRes.departments ?? []);
-        setCertifications(certificationRes.certifications ?? []);
-      } catch {
-        if (mounted) {
-          setGlobalError(ADM004_MESSAGES.masterLoadError);
-        }
-      }
-    })();
-
-    const saved = loadEmployeeFormData();
-    if (saved) {
-      form.reset({ ...DEFAULT_FORM_VALUES, ...saved });
+  /**
+   * Gọi API tải danh sách phòng ban cho dropdown グループ.
+   */
+  const fetchDepartments = useCallback(async (): Promise<void> => {
+    try {
+      const response = await getDepartments();
+      setDepartments(response.departments ?? []);
+    } catch {
+      setDepartments([]);
+      setGlobalError(ADM004_MESSAGES.masterLoadError);
     }
+  }, []);
 
-    return () => {
-      mounted = false;
-    };
-  }, [form]);
+  /**
+   * Gọi API tải danh sách chứng chỉ tiếng Nhật cho dropdown 資格.
+   */
+  const fetchCertifications = useCallback(async (): Promise<void> => {
+    try {
+      const response = await getCertifications();
+      setCertifications(response.certifications ?? []);
+    } catch {
+      setCertifications([]);
+      setGlobalError(ADM004_MESSAGES.masterLoadError);
+    }
+  }, []);
+
+  // Tải danh sách phòng ban, chứng chỉ và khởi tạo dữ liệu form
+  useEffect(() => {
+    void fetchDepartments();
+    void fetchCertifications();
+
+    if (mode === 'back') {
+      // Khi quay lại từ ADM005: khôi phục nguyên vẹn form đã lưu
+      const saved = loadEmployeeFormData();
+      if (saved) {
+        form.reset({ ...DEFAULT_FORM_VALUES, ...saved });
+      }
+    } else {
+      // Khi mở mới từ ADM002 hoặc F5 tại ADM004: xóa rác session cũ và reset form trắng
+      clearEmployeeFormData();
+      form.reset(DEFAULT_FORM_VALUES);
+    }
+  }, [fetchDepartments, fetchCertifications, form, mode, id]);
+
+  // Theo dõi trường chứng chỉ tiếng Nhật đã chọn hay chưa
+  const certificationId = form.watch('certificationId');
+  const isCertificationSelected = Boolean(certificationId && certificationId.trim() !== '');
+  const previousCertificationIdRef = useRef<string | undefined>(undefined);
+
+  // Khi người dùng bỏ chọn chứng chỉ (về rỗng): xóa trắng giá trị và xóa lỗi của 3 trường liên quan
+  useEffect(() => {
+    if (
+      previousCertificationIdRef.current !== undefined &&
+      previousCertificationIdRef.current.trim() !== '' &&
+      !isCertificationSelected
+    ) {
+      form.setValue('certificationStartDate', '');
+      form.setValue('certificationEndDate', '');
+      form.setValue('certificationScore', '');
+      form.clearErrors(['certificationStartDate', 'certificationEndDate', 'certificationScore']);
+    }
+    previousCertificationIdRef.current = certificationId;
+  }, [certificationId, isCertificationSelected, form]);
+
+  // Lấy giá trị của cả 2 trường ngày
+  const startDate = form.watch('certificationStartDate');
+  const endDate = form.watch('certificationEndDate');
+
+  // Tự động re-validate ô "失効日" (Ngày hết hạn) mỗi khi "資格交付日" (Ngày cấp) thay đổi
+  useEffect(() => {
+    // Nếu ô ngày hết hạn đã có giá trị hoặc đang có lỗi đỏ
+    if (endDate || form.formState.errors.certificationEndDate) {
+      void form.trigger('certificationEndDate');
+    }
+  }, [startDate, endDate, form]);
+
 
   /**
    * Xử lý lỗi trả về từ backend: gắn vào field tương ứng hoặc hiển thị lỗi chung.
@@ -159,6 +209,7 @@ export function useADM004() {
   });
 
   const onBack = () => {
+    clearEmployeeFormData();
     router.push(ADM004_ROUTES.list);
   };
 
@@ -167,6 +218,7 @@ export function useADM004() {
     departments,
     certifications,
     globalError,
+    isCertificationSelected,
     onConfirm,
     onBack,
   };

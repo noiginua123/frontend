@@ -66,7 +66,7 @@ export function useADM005() {
   };
 
   const onBack = () => {
-    router.push(ADM004_ROUTES.input);
+    router.push(`${ADM004_ROUTES.input}?mode=back`);
   };
 
   return {

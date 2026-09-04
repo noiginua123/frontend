@@ -1,12 +1,21 @@
 'use client';
 
+import React, { Suspense } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import EmployeeInputForm from '@/components/employee/EmployeeInputForm';
+import ADM004 from '@/components/employee/ADM004';
+
+function EmployeeCreateContent() {
+  useAuth();
+  return <ADM004 />;
+}
 
 /**
- * Trang ADM004 - nhập liệu thêm mới nhân viên.
+ * Trang ADM004 - nhập liệu thêm mới nhân viên bọc trong Suspense.
  */
 export default function EmployeeCreatePage() {
-  useAuth();
-  return <EmployeeInputForm />;
+  return (
+    <Suspense fallback={null}>
+      <EmployeeCreateContent />
+    </Suspense>
+  );
 }

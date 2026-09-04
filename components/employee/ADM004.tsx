@@ -7,6 +7,8 @@ import { format, parse } from 'date-fns';
 
 import { useADM004 } from '@/hooks/useADM004';
 
+import type { EmployeeCreateFormData } from '@/lib/validation/employeeCreate';
+
 /**
  * Chuyển chuỗi yyyy/MM/dd sang Date cho DatePicker (null nếu rỗng/không hợp lệ).
  */
@@ -19,15 +21,34 @@ const parseDateValue = (value: string): Date | null => {
 };
 
 /**
+ * Chặn gõ phím trực tiếp vào ô DatePicker (chỉ cho phép phím Tab để điều hướng),
+ * đảm bảo người dùng chỉ chọn ngày từ popup lịch theo đúng thiết kế.
+ */
+const handleDatePickerKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
+  if (e.key !== 'Tab') {
+    e.preventDefault();
+  }
+};
+
+/**
  * Form nhập liệu thêm mới nhân viên (ADM004). Kết nối với hook useADM004.
  */
-export default function EmployeeInputForm() {
-  const { form, departments, certifications, globalError, onConfirm, onBack } = useADM004();
+export default function ADM004() {
+  const { form, departments, certifications, globalError, isCertificationSelected, onConfirm, onBack } = useADM004();
   const {
     register,
     control,
+    clearErrors,
     formState: { errors },
   } = form;
+
+  /**
+   * Xóa lỗi của trường khi người dùng focus vào ô nhập liệu,
+   * chỉ kiểm tra và báo đỏ trở lại khi người dùng out focus (blur).
+   */
+  const handleFocus = (fieldName: keyof EmployeeCreateFormData) => {
+    clearErrors(fieldName);
+  };
 
   return (
     <div className="row">
@@ -46,6 +67,7 @@ export default function EmployeeInputForm() {
                 type="text"
                 className={`form-control ${errors.employeeLoginId ? 'is-invalid' : ''}`}
                 {...register('employeeLoginId')}
+                onFocus={() => handleFocus('employeeLoginId')}
               />
               {errors.employeeLoginId && (
                 <div className="invalid-feedback d-block">{errors.employeeLoginId.message}</div>
@@ -58,6 +80,7 @@ export default function EmployeeInputForm() {
               <select
                 className={`form-control ${errors.departmentId ? 'is-invalid' : ''}`}
                 {...register('departmentId')}
+                onFocus={() => handleFocus('departmentId')}
               >
                 <option value="">選択してください</option>
                 {departments.map((department) => (
@@ -78,6 +101,7 @@ export default function EmployeeInputForm() {
                 type="text"
                 className={`form-control ${errors.employeeName ? 'is-invalid' : ''}`}
                 {...register('employeeName')}
+                onFocus={() => handleFocus('employeeName')}
               />
               {errors.employeeName && (
                 <div className="invalid-feedback d-block">{errors.employeeName.message}</div>
@@ -91,6 +115,7 @@ export default function EmployeeInputForm() {
                 type="text"
                 className={`form-control ${errors.employeeNameKana ? 'is-invalid' : ''}`}
                 {...register('employeeNameKana')}
+                onFocus={() => handleFocus('employeeNameKana')}
               />
               {errors.employeeNameKana && (
                 <div className="invalid-feedback d-block">{errors.employeeNameKana.message}</div>
@@ -110,8 +135,11 @@ export default function EmployeeInputForm() {
                       className={`form-control ${errors.employeeBirthDate ? 'is-invalid' : ''}`}
                       selected={parseDateValue(field.value)}
                       onChange={(date: Date | null) => field.onChange(date ? format(date, 'yyyy/MM/dd') : '')}
+                      onFocus={() => handleFocus('employeeBirthDate')}
                       onBlur={field.onBlur}
                       dateFormat="yyyy/MM/dd"
+                      onKeyDown={handleDatePickerKeyDown}
+                      onChangeRaw={(e) => e?.preventDefault()}
                     />
                   )}
                 />
@@ -129,6 +157,7 @@ export default function EmployeeInputForm() {
                 type="text"
                 className={`form-control ${errors.employeeEmail ? 'is-invalid' : ''}`}
                 {...register('employeeEmail')}
+                onFocus={() => handleFocus('employeeEmail')}
               />
               {errors.employeeEmail && (
                 <div className="invalid-feedback d-block">{errors.employeeEmail.message}</div>
@@ -142,6 +171,7 @@ export default function EmployeeInputForm() {
                 type="text"
                 className={`form-control ${errors.employeeTelephone ? 'is-invalid' : ''}`}
                 {...register('employeeTelephone')}
+                onFocus={() => handleFocus('employeeTelephone')}
               />
               {errors.employeeTelephone && (
                 <div className="invalid-feedback d-block">{errors.employeeTelephone.message}</div>
@@ -156,6 +186,7 @@ export default function EmployeeInputForm() {
                 className={`form-control ${errors.employeeLoginPassword ? 'is-invalid' : ''}`}
                 autoComplete="new-password"
                 {...register('employeeLoginPassword')}
+                onFocus={() => handleFocus('employeeLoginPassword')}
               />
               {errors.employeeLoginPassword && (
                 <div className="invalid-feedback d-block">{errors.employeeLoginPassword.message}</div>
@@ -170,6 +201,7 @@ export default function EmployeeInputForm() {
                 className={`form-control ${errors.employeeLoginPasswordConfirm ? 'is-invalid' : ''}`}
                 autoComplete="new-password"
                 {...register('employeeLoginPasswordConfirm')}
+                onFocus={() => handleFocus('employeeLoginPasswordConfirm')}
               />
               {errors.employeeLoginPasswordConfirm && (
                 <div className="invalid-feedback d-block">{errors.employeeLoginPasswordConfirm.message}</div>
@@ -183,6 +215,7 @@ export default function EmployeeInputForm() {
               <select
                 className={`form-control ${errors.certificationId ? 'is-invalid' : ''}`}
                 {...register('certificationId')}
+                onFocus={() => handleFocus('certificationId')}
               >
                 <option value="">選択してください</option>
                 {certifications.map((certification) => (
@@ -197,9 +230,14 @@ export default function EmployeeInputForm() {
             </div>
           </li>
           <li className="form-group row d-flex">
-            <label className="col-form-label col-sm-2"><i className="relative">資格交付日:</i></label>
+            <label className="col-form-label col-sm-2">
+              <i className="relative">
+                資格交付日:
+                {isCertificationSelected && <span className="note-red">*</span>}
+              </i>
+            </label>
             <div className="col-sm col-sm-10">
-              <div className="datepicker-wrapper">
+              <div className={`datepicker-wrapper ${!isCertificationSelected ? 'disabled' : ''}`}>
                 <Controller
                   control={control}
                   name="certificationStartDate"
@@ -209,8 +247,12 @@ export default function EmployeeInputForm() {
                       className={`form-control ${errors.certificationStartDate ? 'is-invalid' : ''}`}
                       selected={parseDateValue(field.value)}
                       onChange={(date: Date | null) => field.onChange(date ? format(date, 'yyyy/MM/dd') : '')}
+                      onFocus={() => handleFocus('certificationStartDate')}
                       onBlur={field.onBlur}
                       dateFormat="yyyy/MM/dd"
+                      onKeyDown={handleDatePickerKeyDown}
+                      onChangeRaw={(e) => e?.preventDefault()}
+                      disabled={!isCertificationSelected}
                     />
                   )}
                 />
@@ -222,9 +264,14 @@ export default function EmployeeInputForm() {
             </div>
           </li>
           <li className="form-group row d-flex">
-            <label className="col-form-label col-sm-2"><i className="relative">失効日:</i></label>
+            <label className="col-form-label col-sm-2">
+              <i className="relative">
+                失効日:
+                {isCertificationSelected && <span className="note-red">*</span>}
+              </i>
+            </label>
             <div className="col-sm col-sm-10">
-              <div className="datepicker-wrapper">
+              <div className={`datepicker-wrapper ${!isCertificationSelected ? 'disabled' : ''}`}>
                 <Controller
                   control={control}
                   name="certificationEndDate"
@@ -234,8 +281,12 @@ export default function EmployeeInputForm() {
                       className={`form-control ${errors.certificationEndDate ? 'is-invalid' : ''}`}
                       selected={parseDateValue(field.value)}
                       onChange={(date: Date | null) => field.onChange(date ? format(date, 'yyyy/MM/dd') : '')}
+                      onFocus={() => handleFocus('certificationEndDate')}
                       onBlur={field.onBlur}
                       dateFormat="yyyy/MM/dd"
+                      onKeyDown={handleDatePickerKeyDown}
+                      onChangeRaw={(e) => e?.preventDefault()}
+                      disabled={!isCertificationSelected}
                     />
                   )}
                 />
@@ -247,12 +298,19 @@ export default function EmployeeInputForm() {
             </div>
           </li>
           <li className="form-group row d-flex">
-            <label className="col-form-label col-sm-2"><i className="relative">点数:</i></label>
+            <label className="col-form-label col-sm-2">
+              <i className="relative">
+                点数:
+                {isCertificationSelected && <span className="note-red">*</span>}
+              </i>
+            </label>
             <div className="col-sm col-sm-10">
               <input
                 type="text"
                 className={`form-control ${errors.certificationScore ? 'is-invalid' : ''}`}
                 {...register('certificationScore')}
+                onFocus={() => handleFocus('certificationScore')}
+                disabled={!isCertificationSelected}
               />
               {errors.certificationScore && (
                 <div className="invalid-feedback d-block">{errors.certificationScore.message}</div>
