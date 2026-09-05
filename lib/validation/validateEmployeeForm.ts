@@ -212,8 +212,6 @@ export const validateEmployeeForm = z
         pushIssue(ctx, 'certificationScore', getErrorMessage(ERR_CODE.ER001, [FIELD_LABELS.SCORE]));
       } else if (!isPositiveNumber(data.certificationScore)) {
         pushIssue(ctx, 'certificationScore', getErrorMessage(ERR_CODE.ER018, [FIELD_LABELS.SCORE]));
-      } else if (isMaxLength(data.certificationScore, SCORE_MAX_LENGTH)) {
-        pushIssue(ctx, 'certificationScore', getErrorMessage(ERR_CODE.ER006, [SCORE_MAX_LENGTH, FIELD_LABELS.SCORE]));
       }
     }
   });
