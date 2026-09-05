@@ -68,7 +68,7 @@ export const FIELD_LABELS = {
  */
 export const ERR_MSG_TEMPLATES: Record<ErrCode, string> = {
   [ERR_CODE.ER001]: '「{0}」を入力してください。',
-  [ERR_CODE.ER002]: '「{0}」を入力してください。',
+  [ERR_CODE.ER002]: '「{0}」を選択してください。',
   [ERR_CODE.ER003]: '「{0}」は既に存在しています。',
   [ERR_CODE.ER004]: '「{0}」は存在していません。',
   [ERR_CODE.ER005]: '「{0}」を{1}形式で入力してください。',

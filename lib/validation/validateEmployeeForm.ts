@@ -145,9 +145,9 @@ export const validateEmployeeForm = z
 
     // 5. Ngày sinh: bắt buộc -> đúng định dạng
     if (isEmpty(data.employeeBirthDate)) {
-      pushIssue(ctx, 'employeeBirthDate', getErrorMessage(ERR_CODE.ER001, [FIELD_LABELS.BIRTH_DATE]));
+      pushIssue(ctx, 'employeeBirthDate', getErrorMessage(ERR_CODE.ER002, [FIELD_LABELS.BIRTH_DATE]));
     } else if (!isValidDate(data.employeeBirthDate)) {
-      pushIssue(ctx, 'employeeBirthDate', getErrorMessage(ERR_CODE.ER005, [FIELD_LABELS.BIRTH_DATE, DATE_FORMAT]));
+      pushIssue(ctx, 'employeeBirthDate', getErrorMessage(ERR_CODE.ER011, [FIELD_LABELS.BIRTH_DATE, DATE_FORMAT]));
     }
 
     // 6. Email: bắt buộc -> tối đa 125 -> đúng định dạng
@@ -192,13 +192,13 @@ export const validateEmployeeForm = z
     // 10. Chứng chỉ: chỉ kiểm tra khi đã chọn 資格
     if (!isEmpty(data.certificationId)) {
       if (isEmpty(data.certificationStartDate)) {
-        pushIssue(ctx, 'certificationStartDate', getErrorMessage(ERR_CODE.ER001, [FIELD_LABELS.START_DATE]));
+        pushIssue(ctx, 'certificationStartDate', getErrorMessage(ERR_CODE.ER002, [FIELD_LABELS.START_DATE]));
       } else if (!isValidDate(data.certificationStartDate)) {
         pushIssue(ctx, 'certificationStartDate', getErrorMessage(ERR_CODE.ER011, [FIELD_LABELS.START_DATE, DATE_FORMAT]));
       }
 
       if (isEmpty(data.certificationEndDate)) {
-        pushIssue(ctx, 'certificationEndDate', getErrorMessage(ERR_CODE.ER001, [FIELD_LABELS.END_DATE]));
+        pushIssue(ctx, 'certificationEndDate', getErrorMessage(ERR_CODE.ER002, [FIELD_LABELS.END_DATE]));
       } else if (!isValidDate(data.certificationEndDate)) {
         pushIssue(ctx, 'certificationEndDate', getErrorMessage(ERR_CODE.ER011, [FIELD_LABELS.END_DATE, DATE_FORMAT]));
       } else if (
