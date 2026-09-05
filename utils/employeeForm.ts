@@ -1,11 +1,11 @@
 import { ADM004_SESSION_KEY } from '@/constants/adm004';
-import type { EmployeeCreateFormData } from '@/lib/validation/employeeCreate';
+import type { validateEmployeeForm } from '@/lib/validation/validateEmployeeForm';
 
 /**
  * Dữ liệu form ADM004 được lưu tạm, kèm nhãn hiển thị (tên nhóm, tên chứng chỉ)
  * để màn hình xác nhận ADM005 hiển thị mà không cần gọi lại API master.
  */
-export interface StoredEmployeeForm extends EmployeeCreateFormData {
+export interface StoredEmployeeForm extends validateEmployeeForm {
   departmentName?: string;
   certificationName?: string;
 }

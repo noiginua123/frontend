@@ -6,7 +6,7 @@ import { useADM005 } from '@/hooks/useADM005';
  * Màn hình xác nhận thông tin trước khi đăng ký nhân viên (ADM005).
  * Chỉ hiển thị (read-only) dữ liệu đã nhập ở ADM004.
  */
-export default function EmployeeConfirmForm() {
+export default function ADM005() {
   const { formData, submitting, globalError, onSubmit, onBack } = useADM005();
 
   if (!formData) {

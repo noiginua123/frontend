@@ -96,9 +96,19 @@ export interface EmployeeDetailResponse {
 }
 
 /**
- * Payload request thêm mới nhân viên POST /employee (ADM004 / ADM005)
+ * Thông tin một chứng chỉ gửi lên backend khi thêm mới / cập nhật nhân viên (khớp CertificationRequest.java)
  */
-export interface EmployeeCreateRequest {
+export interface CreateCertificationPayload {
+  certificationId: string;
+  startDate: string;
+  endDate: string;
+  score: string;
+}
+
+/**
+ * Payload thêm mới nhân viên gửi lên backend (khớp EmployeeRequest.java)
+ */
+export interface CreateEmployeePayload {
   employeeLoginId: string;
   employeeName: string;
   employeeNameKana: string;
@@ -106,42 +116,21 @@ export interface EmployeeCreateRequest {
   employeeEmail: string;
   employeeTelephone: string;
   employeeLoginPassword?: string;
-  departmentId: number;
-  certifications?: EmployeeCertificationDTO[];
+  departmentId: string;
+  certifications: CreateCertificationPayload[];
 }
 
 /**
- * Payload request cập nhật thông tin nhân viên PUT /employee (ADM004 / ADM005)
+ * Payload cập nhật thông tin nhân viên PUT /employee/{id}
  */
-export interface EmployeeUpdateRequest {
+export interface UpdateEmployeePayload extends CreateEmployeePayload {
   employeeId: number;
-  employeeLoginId: string;
-  employeeName: string;
-  employeeNameKana: string;
-  employeeBirthDate: string;
-  employeeEmail: string;
-  employeeTelephone: string;
-  employeeLoginPassword?: string;
-  departmentId: number;
-  certifications?: EmployeeCertificationDTO[];
 }
 
 /**
- * Response cho các thao tác thêm / sửa nhân viên
+ * Response cho các thao tác thêm / sửa / xóa nhân viên (khớp với EmployeeResponse.java backend)
  */
-export interface EmployeeMutationResponse {
-  code: number;
-  employeeId: number;
-  message?: {
-    code: string;
-    params: string[];
-  };
-}
-
-/**
- * Response cho thao tác xóa nhân viên DELETE /employee/{id}
- */
-export interface EmployeeDeleteResponse {
+export interface EmployeeResponse {
   code: number;
   employeeId: number;
   message?: {

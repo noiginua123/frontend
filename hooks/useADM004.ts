@@ -2,27 +2,22 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter, useSearchParams } from 'next/navigation';
-import axios from 'axios';
 
 import { getDepartments } from '@/lib/api/department.api';
 import { getCertifications } from '@/lib/api/certification.api';
-import { validateEmployeeCreate, transformCreatePayload } from '@/lib/api/employee.api';
-import { employeeCreateSchema, type EmployeeCreateFormData } from '@/lib/validation/employeeCreate';
+import { validateEmployeeForm } from '@/lib/validation/validateEmployeeForm';
 import { saveEmployeeFormData, loadEmployeeFormData, clearEmployeeFormData } from '@/utils/employeeForm';
 import {
   ADM004_ROUTES,
   ADM004_MESSAGES,
-  LABEL_TO_FIELD,
-  CODE_TO_FIELD,
 } from '@/constants/adm004';
-import { ERR_CODE, getErrorMessage } from '@/constants/messages';
 import type { DepartmentDTO } from '@/types/department';
 import type { CertificationDTO } from '@/types/certification';
 
 /**
  * Giá trị mặc định cho form ADM004 (tất cả trường rỗng).
  */
-export const DEFAULT_FORM_VALUES: EmployeeCreateFormData = {
+export const DEFAULT_FORM_VALUES: validateEmployeeForm = {
   employeeLoginId: '',
   departmentId: '',
   employeeName: '',
@@ -37,32 +32,6 @@ export const DEFAULT_FORM_VALUES: EmployeeCreateFormData = {
   certificationEndDate: '',
   certificationScore: '',
 };
-
-interface BackendErrorBody {
-  message?: {
-    code?: string;
-    params?: (string | number)[];
-  };
-}
-
-/**
- * Xác định field trên form tương ứng với mã lỗi backend trả về.
- *
- * @param code Mã lỗi (ví dụ ER006)
- * @param params Danh sách param kèm theo (có thể chứa nhãn trường)
- * @return Tên field hoặc null nếu không xác định được
- */
-function resolveField(code: string, params: (string | number)[]): string | null {
-  if (CODE_TO_FIELD[code]) {
-    return CODE_TO_FIELD[code];
-  }
-  for (const param of params) {
-    if (typeof param === 'string' && LABEL_TO_FIELD[param]) {
-      return LABEL_TO_FIELD[param];
-    }
-  }
-  return null;
-}
 
 /**
  * Hook điều khiển màn hình nhập liệu ADM004: tải master data, quản lý form (React Hook
@@ -80,11 +49,12 @@ export function useADM004() {
   const [certifications, setCertifications] = useState<CertificationDTO[]>([]);
   const [globalError, setGlobalError] = useState<string>('');
 
-  const form = useForm<EmployeeCreateFormData>({
-    // resolver: zodResolver(employeeCreateSchema),
+  const form = useForm<validateEmployeeForm>({
+    resolver: zodResolver(validateEmployeeForm),
     mode: 'onBlur',
     reValidateMode: 'onBlur',
     defaultValues: DEFAULT_FORM_VALUES,
+    shouldFocusError: false,
   });
 
   /**
@@ -163,49 +133,34 @@ export function useADM004() {
     }
   }, [startDate, endDate, form]);
 
+  /**
+   * Lấy tên phòng ban từ danh mục theo departmentId.
+   *
+   * @param id ID phòng ban
+   * @return Tên phòng ban hoặc undefined
+   */
+  const getDepartmentName = (id: string): string | undefined => {
+    return departments.find((item) => String(item.departmentId) === id.trim())?.departmentName;
+  };
 
   /**
-   * Xử lý lỗi trả về từ backend: gắn vào field tương ứng hoặc hiển thị lỗi chung.
+   * Lấy tên chứng chỉ từ danh mục theo certificationId.
+   *
+   * @param id ID chứng chỉ
+   * @return Tên chứng chỉ hoặc undefined
    */
-  function handleBackendError(err: unknown): void {
-    if (axios.isAxiosError(err) && err.response?.data) {
-      const body = err.response.data as BackendErrorBody;
-      const code = body.message?.code;
-      const params = body.message?.params ?? [];
-      if (code) {
-        const message = getErrorMessage(code, params);
-        const field = resolveField(code, params);
-        if (field) {
-          form.setError(field as keyof EmployeeCreateFormData, { type: 'server', message });
-        } else {
-          setGlobalError(message);
-        }
-        return;
-      }
-    }
-    setGlobalError(getErrorMessage(ERR_CODE.ER023));
-  }
+  const getCertificationName = (id: string): string | undefined => {
+    return certifications.find((item) => String(item.certificationId) === id.trim())?.certificationName;
+  };
 
-  const onConfirm = form.handleSubmit(async (values) => {
+  const handleConfirm = form.handleSubmit((values) => {
     setGlobalError('');
-    const payload = transformCreatePayload(values);
-    try {
-      await validateEmployeeCreate(payload);
-      const department = departments.find(
-        (item) => String(item.departmentId) === values.departmentId.trim(),
-      );
-      const certification = certifications.find(
-        (item) => String(item.certificationId) === values.certificationId.trim(),
-      );
-      saveEmployeeFormData({
-        ...values,
-        departmentName: department?.departmentName,
-        certificationName: certification?.certificationName,
-      });
-      router.push(ADM004_ROUTES.confirm);
-    } catch (err) {
-      handleBackendError(err);
-    }
+    saveEmployeeFormData({
+      ...values,
+      departmentName: getDepartmentName(values.departmentId),
+      certificationName: getCertificationName(values.certificationId),
+    });
+    router.push(ADM004_ROUTES.confirm);
   });
 
   const onBack = () => {
@@ -219,7 +174,7 @@ export function useADM004() {
     certifications,
     globalError,
     isCertificationSelected,
-    onConfirm,
+    handleConfirm,
     onBack,
   };
 }

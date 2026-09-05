@@ -96,7 +96,7 @@ function pushIssue(ctx: z.RefinementCtx, field: FieldName, message: string): voi
  * <p>Toàn bộ trường là chuỗi (giá trị từ input). Thứ tự kiểm tra từng trường
  * khớp với backend EmployeeValidator để hiển thị đúng mã lỗi đầu tiên.</p>
  */
-export const employeeCreateSchema = z
+export const validateEmployeeForm = z
   .object({
     employeeLoginId: z.string(),
     departmentId: z.string(),
@@ -194,13 +194,13 @@ export const employeeCreateSchema = z
       if (isEmpty(data.certificationStartDate)) {
         pushIssue(ctx, 'certificationStartDate', getErrorMessage(ERR_CODE.ER001, [FIELD_LABELS.START_DATE]));
       } else if (!isValidDate(data.certificationStartDate)) {
-        pushIssue(ctx, 'certificationStartDate', getErrorMessage(ERR_CODE.ER005, [FIELD_LABELS.START_DATE, DATE_FORMAT]));
+        pushIssue(ctx, 'certificationStartDate', getErrorMessage(ERR_CODE.ER011, [FIELD_LABELS.START_DATE, DATE_FORMAT]));
       }
 
       if (isEmpty(data.certificationEndDate)) {
         pushIssue(ctx, 'certificationEndDate', getErrorMessage(ERR_CODE.ER001, [FIELD_LABELS.END_DATE]));
       } else if (!isValidDate(data.certificationEndDate)) {
-        pushIssue(ctx, 'certificationEndDate', getErrorMessage(ERR_CODE.ER005, [FIELD_LABELS.END_DATE, DATE_FORMAT]));
+        pushIssue(ctx, 'certificationEndDate', getErrorMessage(ERR_CODE.ER011, [FIELD_LABELS.END_DATE, DATE_FORMAT]));
       } else if (
         isValidDate(data.certificationStartDate) &&
         isEndBeforeStart(data.certificationStartDate, data.certificationEndDate)
@@ -218,4 +218,4 @@ export const employeeCreateSchema = z
     }
   });
 
-export type EmployeeCreateFormData = z.infer<typeof employeeCreateSchema>;
+export type validateEmployeeForm = z.infer<typeof validateEmployeeForm>;

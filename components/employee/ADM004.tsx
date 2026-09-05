@@ -7,7 +7,7 @@ import { format, parse } from 'date-fns';
 
 import { useADM004 } from '@/hooks/useADM004';
 
-import type { EmployeeCreateFormData } from '@/lib/validation/employeeCreate';
+import type { validateEmployeeForm } from '@/lib/validation/validateEmployeeForm';
 
 /**
  * Chuyển chuỗi yyyy/MM/dd sang Date cho DatePicker (null nếu rỗng/không hợp lệ).
@@ -34,7 +34,7 @@ const handleDatePickerKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
  * Form nhập liệu thêm mới nhân viên (ADM004). Kết nối với hook useADM004.
  */
 export default function ADM004() {
-  const { form, departments, certifications, globalError, isCertificationSelected, onConfirm, onBack } = useADM004();
+  const { form, departments, certifications, globalError, isCertificationSelected, handleConfirm, onBack } = useADM004();
   const {
     register,
     control,
@@ -46,13 +46,13 @@ export default function ADM004() {
    * Xóa lỗi của trường khi người dùng focus vào ô nhập liệu,
    * chỉ kiểm tra và báo đỏ trở lại khi người dùng out focus (blur).
    */
-  const handleFocus = (fieldName: keyof EmployeeCreateFormData) => {
+  const handleFocus = (fieldName: keyof validateEmployeeForm) => {
     clearErrors(fieldName);
   };
 
   return (
     <div className="row">
-      <form className="c-form box-shadow" onSubmit={onConfirm} noValidate>
+      <form className="c-form box-shadow" onSubmit={handleConfirm} noValidate>
         <ul>
           <li className="title">会員情報登録</li>
           {globalError && (
