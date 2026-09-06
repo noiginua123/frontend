@@ -6,7 +6,7 @@ import type {
   CreateEmployeePayload,
   EmployeeResponse,
 } from '@/types/employee';
-import type { validateEmployeeForm } from '@/lib/validation/validateEmployeeForm';
+import type { EmployeeFormData } from '@/lib/validation/validateEmployeeForm';
 
 /**
  * Tìm kiếm và lấy danh sách nhân viên theo tiêu chí.
@@ -26,7 +26,7 @@ export async function getEmployees(params?: GetEmployeesParams): Promise<ListEmp
  * @param form Dữ liệu form đã qua validate
  * @return Payload để gửi lên backend
  */
-export function transformCreatePayload(form: validateEmployeeForm): CreateEmployeePayload {
+export function transformCreatePayload(form: EmployeeFormData): CreateEmployeePayload {
   const hasCertification = form.certificationId != null && form.certificationId.trim() !== '';
   const certifications: CreateCertificationPayload[] = hasCertification
     ? [

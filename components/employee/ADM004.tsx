@@ -7,7 +7,7 @@ import { format, parse } from 'date-fns';
 
 import { useADM004 } from '@/hooks/useADM004';
 
-import type { validateEmployeeForm } from '@/lib/validation/validateEmployeeForm';
+import type { EmployeeFormData } from '@/lib/validation/validateEmployeeForm';
 
 /**
  * Chuyển chuỗi yyyy/MM/dd sang Date cho DatePicker (null nếu rỗng/không hợp lệ).
@@ -34,7 +34,17 @@ const handleDatePickerKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
  * Form nhập liệu thêm mới nhân viên (ADM004). Kết nối với hook useADM004.
  */
 export default function ADM004() {
-  const { form, departments, certifications, globalError, isCertificationSelected, handleConfirm, onBack } = useADM004();
+  const {
+    form,
+    departments,
+    certifications,
+    globalError,
+    isCertificationSelected,
+    handleCertificationChange,
+    handleCertificationStartDateChange,
+    handleConfirm,
+    onBack,
+  } = useADM004();
   const {
     register,
     control,
@@ -46,7 +56,7 @@ export default function ADM004() {
    * Xóa lỗi của trường khi người dùng focus vào ô nhập liệu,
    * chỉ kiểm tra và báo đỏ trở lại khi người dùng out focus (blur).
    */
-  const handleFocus = (fieldName: keyof validateEmployeeForm) => {
+  const handleFocus = (fieldName: keyof EmployeeFormData) => {
     clearErrors(fieldName);
   };
 
@@ -214,7 +224,10 @@ export default function ADM004() {
             <div className="col-sm col-sm-10">
               <select
                 className={`form-control ${errors.certificationId ? 'is-invalid' : ''}`}
-                {...register('certificationId')}
+                {...register('certificationId', {
+                  onChange: (event) =>
+                    handleCertificationChange(event.target.value),
+                })}
                 onFocus={() => handleFocus('certificationId')}
               >
                 <option value="">選択してください</option>
@@ -246,7 +259,10 @@ export default function ADM004() {
                       placeholderText="yyyy/MM/dd"
                       className={`form-control ${errors.certificationStartDate ? 'is-invalid' : ''}`}
                       selected={parseDateValue(field.value)}
-                      onChange={(date: Date | null) => field.onChange(date ? format(date, 'yyyy/MM/dd') : '')}
+                      onChange={(date: Date | null) => {
+                        field.onChange(date ? format(date, 'yyyy/MM/dd') : '');
+                        handleCertificationStartDateChange();
+                      }}
                       onFocus={() => handleFocus('certificationStartDate')}
                       onBlur={field.onBlur}
                       dateFormat="yyyy/MM/dd"

@@ -1,11 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useEffect, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { getDepartments } from '@/lib/api/department.api';
 import { getCertifications } from '@/lib/api/certification.api';
-import { validateEmployeeForm } from '@/lib/validation/validateEmployeeForm';
+import {
+  employeeFormSchema,
+  type EmployeeFormData,
+} from '@/lib/validation/validateEmployeeForm';
 import { saveEmployeeFormData, loadEmployeeFormData, clearEmployeeFormData } from '@/utils/employeeForm';
 import {
   ADM004_ROUTES,
@@ -17,7 +20,7 @@ import type { CertificationDTO } from '@/types/certification';
 /**
  * Giá trị mặc định cho form ADM004 (tất cả trường rỗng).
  */
-export const DEFAULT_FORM_VALUES: validateEmployeeForm = {
+export const DEFAULT_FORM_VALUES: EmployeeFormData = {
   employeeLoginId: '',
   departmentId: '',
   employeeName: '',
@@ -43,95 +46,104 @@ export function useADM004() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const mode = searchParams?.get('mode');
-  const id = searchParams?.get('id');
+
+  const [initialFormValues] = useState<EmployeeFormData>(() => {
+    if (mode !== 'back') {
+      return DEFAULT_FORM_VALUES;
+    }
+
+    const savedForm = loadEmployeeFormData();
+    return savedForm
+      ? { ...DEFAULT_FORM_VALUES, ...savedForm }
+      : DEFAULT_FORM_VALUES;
+  });
 
   const [departments, setDepartments] = useState<DepartmentDTO[]>([]);
   const [certifications, setCertifications] = useState<CertificationDTO[]>([]);
   const [globalError, setGlobalError] = useState<string>('');
 
-  const form = useForm<validateEmployeeForm>({
-    resolver: zodResolver(validateEmployeeForm),
+  const form = useForm<EmployeeFormData>({
+    resolver: zodResolver(employeeFormSchema),
     mode: 'onBlur',
     reValidateMode: 'onBlur',
-    defaultValues: DEFAULT_FORM_VALUES,
+    defaultValues: initialFormValues,
     shouldFocusError: false,
   });
 
-  /**
-   * Gọi API tải danh sách phòng ban cho dropdown グループ.
-   */
-  const fetchDepartments = useCallback(async (): Promise<void> => {
-    try {
-      const response = await getDepartments();
-      setDepartments(response.departments ?? []);
-    } catch {
-      setDepartments([]);
-      setGlobalError(ADM004_MESSAGES.masterLoadError);
-    }
-  }, []);
-
-  /**
-   * Gọi API tải danh sách chứng chỉ tiếng Nhật cho dropdown 資格.
-   */
-  const fetchCertifications = useCallback(async (): Promise<void> => {
-    try {
-      const response = await getCertifications();
-      setCertifications(response.certifications ?? []);
-    } catch {
-      setCertifications([]);
-      setGlobalError(ADM004_MESSAGES.masterLoadError);
-    }
-  }, []);
-
-  // Tải danh sách phòng ban, chứng chỉ và khởi tạo dữ liệu form
+  // Tải đồng thời danh sách phòng ban và chứng chỉ.
   useEffect(() => {
-    void fetchDepartments();
-    void fetchCertifications();
+    let isActive = true;
 
-    if (mode === 'back') {
-      // Khi quay lại từ ADM005: khôi phục nguyên vẹn form đã lưu
-      const saved = loadEmployeeFormData();
-      if (saved) {
-        form.reset({ ...DEFAULT_FORM_VALUES, ...saved });
-      }
-    } else {
-      // Khi mở mới từ ADM002 hoặc F5 tại ADM004: xóa rác session cũ và reset form trắng
+    void Promise.allSettled([getDepartments(), getCertifications()]).then(
+      ([departmentResult, certificationResult]) => {
+        if (!isActive) {
+          return;
+        }
+
+        if (departmentResult.status === 'fulfilled') {
+          setDepartments(departmentResult.value.departments ?? []);
+        }
+        if (certificationResult.status === 'fulfilled') {
+          setCertifications(certificationResult.value.certifications ?? []);
+        }
+        if (
+          departmentResult.status === 'rejected' ||
+          certificationResult.status === 'rejected'
+        ) {
+          setGlobalError(ADM004_MESSAGES.masterLoadError);
+        }
+      },
+    );
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  // Khi mở form mới, loại bỏ dữ liệu xác nhận còn lại từ lần nhập trước.
+  useEffect(() => {
+    if (mode !== 'back') {
       clearEmployeeFormData();
-      form.reset(DEFAULT_FORM_VALUES);
     }
-  }, [fetchDepartments, fetchCertifications, form, mode, id]);
+  }, [mode]);
 
-  // Theo dõi trường chứng chỉ tiếng Nhật đã chọn hay chưa
-  const certificationId = form.watch('certificationId');
-  const isCertificationSelected = Boolean(certificationId && certificationId.trim() !== '');
-  const previousCertificationIdRef = useRef<string | undefined>(undefined);
+  const certificationId = useWatch({
+    control: form.control,
+    name: 'certificationId',
+  });
+  const isCertificationSelected = Boolean(
+    certificationId && certificationId.trim() !== '',
+  );
 
-  // Khi người dùng bỏ chọn chứng chỉ (về rỗng): xóa trắng giá trị và xóa lỗi của 3 trường liên quan
-  useEffect(() => {
-    if (
-      previousCertificationIdRef.current !== undefined &&
-      previousCertificationIdRef.current.trim() !== '' &&
-      !isCertificationSelected
-    ) {
+  /**
+   * Xóa dữ liệu phụ thuộc khi người dùng bỏ chọn chứng chỉ.
+   *
+   * @param selectedCertificationId ID chứng chỉ vừa chọn
+   */
+  const handleCertificationChange = (
+    selectedCertificationId: string,
+  ): void => {
+    if (selectedCertificationId.trim() === '') {
       form.setValue('certificationStartDate', '');
       form.setValue('certificationEndDate', '');
       form.setValue('certificationScore', '');
-      form.clearErrors(['certificationStartDate', 'certificationEndDate', 'certificationScore']);
+      form.clearErrors([
+        'certificationStartDate',
+        'certificationEndDate',
+        'certificationScore',
+      ]);
     }
-    previousCertificationIdRef.current = certificationId;
-  }, [certificationId, isCertificationSelected, form]);
+  };
 
-  // Lấy giá trị của cả 2 trường ngày
-  const startDate = form.watch('certificationStartDate');
-  const endDate = form.watch('certificationEndDate');
-
-  // Tự động re-validate ô "失効日" (Ngày hết hạn) mỗi khi "資格交付日" (Ngày cấp) thay đổi
-  useEffect(() => {
-    // Nếu ô ngày hết hạn đã có giá trị hoặc đang có lỗi đỏ
-    if (endDate || form.formState.errors.certificationEndDate) {
+  /**
+   * Kiểm tra lại ngày hết hạn ngay sau khi ngày cấp thay đổi.
+   */
+  const handleCertificationStartDateChange = (): void => {
+    const currentEndDate = form.getValues('certificationEndDate');
+    if (currentEndDate || form.formState.errors.certificationEndDate) {
       void form.trigger('certificationEndDate');
     }
-  }, [startDate, endDate, form]);
+  };
 
   /**
    * Lấy tên phòng ban từ danh mục theo departmentId.
@@ -174,6 +186,8 @@ export function useADM004() {
     certifications,
     globalError,
     isCertificationSelected,
+    handleCertificationChange,
+    handleCertificationStartDateChange,
     handleConfirm,
     onBack,
   };
