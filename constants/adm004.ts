@@ -11,6 +11,11 @@ export const ADM004_SESSION_KEY = 'adm004_employee_form';
 export const ADM006_MESSAGE_KEY = 'adm006_success_message';
 
 /**
+ * Khóa lưu thông báo lỗi khi bị điều hướng từ ADM005 về ADM004 (sessionStorage).
+ */
+export const ADM004_ERROR_KEY = 'adm004_error_message';
+
+/**
  * Các đường dẫn điều hướng của luồng thêm mới nhân viên.
  */
 export const ADM004_ROUTES = {

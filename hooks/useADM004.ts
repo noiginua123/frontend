@@ -13,6 +13,7 @@ import { saveEmployeeFormData, loadEmployeeFormData, clearEmployeeFormData } fro
 import {
   ADM004_ROUTES,
   ADM004_MESSAGES,
+  ADM004_ERROR_KEY,
 } from '@/constants/adm004';
 import type { DepartmentDTO } from '@/types/department';
 import type { CertificationDTO } from '@/types/certification';
@@ -60,7 +61,17 @@ export function useADM004() {
 
   const [departments, setDepartments] = useState<DepartmentDTO[]>([]);
   const [certifications, setCertifications] = useState<CertificationDTO[]>([]);
-  const [globalError, setGlobalError] = useState<string>('');
+  const [globalError, setGlobalError] = useState<string>(() => {
+    if (typeof window === 'undefined' || mode !== 'back') {
+      return '';
+    }
+    const rawError = window.sessionStorage.getItem(ADM004_ERROR_KEY);
+    if (!rawError) {
+      return '';
+    }
+    window.sessionStorage.removeItem(ADM004_ERROR_KEY);
+    return rawError;
+  });
 
   const form = useForm<EmployeeFormData>({
     resolver: zodResolver(employeeFormSchema),
@@ -100,10 +111,13 @@ export function useADM004() {
     };
   }, []);
 
-  // Khi mở form mới, loại bỏ dữ liệu xác nhận còn lại từ lần nhập trước.
+  // Khi mở form mới, loại bỏ dữ liệu xác nhận và thông báo lỗi còn lại từ lần trước.
   useEffect(() => {
     if (mode !== 'back') {
       clearEmployeeFormData();
+      if (typeof window !== 'undefined') {
+        window.sessionStorage.removeItem(ADM004_ERROR_KEY);
+      }
     }
   }, [mode]);
 
@@ -206,6 +220,9 @@ export function useADM004() {
    */
   const handleBack = () => {
     clearEmployeeFormData();
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.removeItem(ADM004_ERROR_KEY);
+    }
     router.push(ADM004_ROUTES.list);
   };
 

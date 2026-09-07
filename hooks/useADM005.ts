@@ -8,7 +8,11 @@ import {
   clearEmployeeFormData,
   type StoredEmployeeForm,
 } from '@/utils/employeeForm';
-import { ADM004_ROUTES, ADM006_MESSAGE_KEY } from '@/constants/adm004';
+import {
+  ADM004_ROUTES,
+  ADM006_MESSAGE_KEY,
+  ADM004_ERROR_KEY,
+} from '@/constants/adm004';
 import { ERR_CODE, MSG_CODE, INFO_MESSAGES, getErrorMessage } from '@/constants/messages';
 
 interface BackendErrorBody {
@@ -41,6 +45,8 @@ export function useADM005() {
   /**
    * Xử lý xác nhận đăng ký nhân viên: gửi dữ liệu lên backend,
    * lưu thông báo thành công và điều hướng sang màn hình ADM006.
+   * Nếu gặp lỗi nghiệp vụ / validate (như trùng login ID ER003),
+   * lưu thông báo lỗi và điều hướng quay lại ADM004 để hiển thị bảng lỗi đỏ bên trên.
    */
   const handleSubmit = async () => {
     if (!formData || submitting) {
@@ -58,12 +64,30 @@ export function useADM005() {
       router.push(ADM004_ROUTES.complete);
     } catch (err) {
       let message = getErrorMessage(ERR_CODE.ER023);
+      let isBusinessError = false;
+
       if (axios.isAxiosError(err) && err.response?.data) {
         const body = err.response.data as BackendErrorBody;
         if (body.message?.code) {
-          message = getErrorMessage(body.message.code, body.message.params ?? []);
+          const code = body.message.code;
+          const params = body.message.params ?? [];
+          message = getErrorMessage(code, params);
+
+          // Nếu là lỗi nghiệp vụ từ backend (khác mã ER023 lỗi hệ thống bất ngờ)
+          if (code !== ERR_CODE.ER023) {
+            isBusinessError = true;
+          }
         }
       }
+
+      if (isBusinessError) {
+        if (typeof window !== 'undefined') {
+          window.sessionStorage.setItem(ADM004_ERROR_KEY, message);
+        }
+        router.push(`${ADM004_ROUTES.input}?mode=back`);
+        return;
+      }
+
       setGlobalError(message);
       setSubmitting(false);
     }
