@@ -59,7 +59,7 @@ export function transformCreatePayload(form: EmployeeFormData): CreateEmployeePa
  * @param payload Dữ liệu nhân viên
  * @return Response chứa id và message thành công
  */
-export async function createEmployee(payload: CreateEmployeePayload): Promise<EmployeeResponse> {
+export async function addEmployee(payload: CreateEmployeePayload): Promise<EmployeeResponse> {
   const response = await apiClient.post<EmployeeResponse>('/employee', payload);
   return response.data;
 }

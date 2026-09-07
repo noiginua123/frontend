@@ -43,7 +43,7 @@ export default function ADM004() {
     handleCertificationChange,
     handleCertificationStartDateChange,
     handleConfirm,
-    onBack,
+    handleBack,
   } = useADM004();
   const {
     register,
@@ -336,7 +336,7 @@ export default function ADM004() {
           <li className="form-group row d-flex">
             <div className="btn-group col-sm col-sm-10 ml">
               <button type="submit" className="btn btn-primary btn-sm">確認</button>
-              <button type="button" onClick={onBack} className="btn btn-secondary btn-sm">戻る</button>
+              <button type="button" onClick={handleBack} className="btn btn-secondary btn-sm">戻る</button>
             </div>
           </li>
         </ul>

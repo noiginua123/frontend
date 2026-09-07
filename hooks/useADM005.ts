@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
-import { createEmployee, transformCreatePayload } from '@/lib/api/employee.api';
+import { addEmployee, transformCreatePayload } from '@/lib/api/employee.api';
 import {
   loadEmployeeFormData,
   clearEmployeeFormData,
@@ -38,7 +38,11 @@ export function useADM005() {
     }
   }, [formData, router]);
 
-  const onSubmit = async () => {
+  /**
+   * Xử lý xác nhận đăng ký nhân viên: gửi dữ liệu lên backend,
+   * lưu thông báo thành công và điều hướng sang màn hình ADM006.
+   */
+  const handleSubmit = async () => {
     if (!formData || submitting) {
       return;
     }
@@ -46,7 +50,7 @@ export function useADM005() {
     setGlobalError('');
     try {
       const payload = transformCreatePayload(formData);
-      await createEmployee(payload);
+      await addEmployee(payload);
       if (typeof window !== 'undefined') {
         window.sessionStorage.setItem(ADM006_MESSAGE_KEY, INFO_MESSAGES[MSG_CODE.MSG001]);
       }
@@ -65,7 +69,10 @@ export function useADM005() {
     }
   };
 
-  const onBack = () => {
+  /**
+   * Xử lý quay lại màn hình nhập liệu ADM004 kèm cờ mode=back để khôi phục dữ liệu đã nhập.
+   */
+  const handleBack = () => {
     router.push(`${ADM004_ROUTES.input}?mode=back`);
   };
 
@@ -73,7 +80,7 @@ export function useADM005() {
     formData,
     submitting,
     globalError,
-    onSubmit,
-    onBack,
+    handleSubmit,
+    handleBack,
   };
 }

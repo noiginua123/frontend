@@ -7,7 +7,7 @@ import { useADM005 } from '@/hooks/useADM005';
  * Chỉ hiển thị (read-only) dữ liệu đã nhập ở ADM004.
  */
 export default function ADM005() {
-  const { formData, submitting, globalError, onSubmit, onBack } = useADM005();
+  const { formData, submitting, globalError, handleSubmit, handleBack } = useADM005();
 
   if (!formData) {
     return null;
@@ -73,8 +73,8 @@ export default function ADM005() {
           </li>
           <li className="form-group row d-flex">
             <div className="btn-group col-sm col-sm-10 ml">
-              <button type="button" onClick={onSubmit} disabled={submitting} className="btn btn-primary btn-sm">OK</button>
-              <button type="button" onClick={onBack} disabled={submitting} className="btn btn-secondary btn-sm">戻る</button>
+              <button type="button" onClick={handleSubmit} disabled={submitting} className="btn btn-primary btn-sm">OK</button>
+              <button type="button" onClick={handleBack} disabled={submitting} className="btn btn-secondary btn-sm">戻る</button>
             </div>
           </li>
         </ul>

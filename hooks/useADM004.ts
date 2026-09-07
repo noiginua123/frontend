@@ -107,6 +107,32 @@ export function useADM004() {
     }
   }, [mode]);
 
+  // Đồng bộ lại giá trị phòng ban khi danh sách phòng ban đã tải xong ở chế độ quay lại (tránh bị reset do options load bất đồng bộ).
+  useEffect(() => {
+    if (mode === 'back' && departments.length > 0) {
+      const savedForm = loadEmployeeFormData();
+      if (savedForm?.departmentId) {
+        form.setValue('departmentId', savedForm.departmentId, {
+          shouldValidate: false,
+          shouldDirty: false,
+        });
+      }
+    }
+  }, [mode, departments, form]);
+
+  // Đồng bộ lại giá trị trình độ tiếng Nhật khi danh sách chứng chỉ đã tải xong ở chế độ quay lại.
+  useEffect(() => {
+    if (mode === 'back' && certifications.length > 0) {
+      const savedForm = loadEmployeeFormData();
+      if (savedForm?.certificationId) {
+        form.setValue('certificationId', savedForm.certificationId, {
+          shouldValidate: false,
+          shouldDirty: false,
+        });
+      }
+    }
+  }, [mode, certifications, form]);
+
   const certificationId = useWatch({
     control: form.control,
     name: 'certificationId',
@@ -175,7 +201,10 @@ export function useADM004() {
     router.push(ADM004_ROUTES.confirm);
   });
 
-  const onBack = () => {
+  /**
+   * Xử lý quay lại màn hình danh sách nhân viên ADM002 và dọn dẹp dữ liệu tạm.
+   */
+  const handleBack = () => {
     clearEmployeeFormData();
     router.push(ADM004_ROUTES.list);
   };
@@ -189,6 +218,7 @@ export function useADM004() {
     handleCertificationChange,
     handleCertificationStartDateChange,
     handleConfirm,
-    onBack,
+    handleBack,
+    onBack: handleBack,
   };
 }
