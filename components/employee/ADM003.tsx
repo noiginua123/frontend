@@ -11,6 +11,7 @@ export default function ADM003() {
   const {
     employee,
     loading,
+    isDeleting,
     errorMessage,
     isSystemError,
     handleEdit,
@@ -136,14 +137,15 @@ export default function ADM003() {
               <button
                 type="button"
                 onClick={handleEdit}
+                disabled={isDeleting}
                 className="btn btn-primary btn-sm"
               >
                 編集
               </button>
-              {/* TODO: Nút xóa nhân viên (Hạng mục 29 - API 08) */}
               <button
                 type="button"
                 onClick={handleDelete}
+                disabled={isDeleting}
                 className="btn btn-secondary btn-sm"
               >
                 削除
@@ -151,6 +153,7 @@ export default function ADM003() {
               <button
                 type="button"
                 onClick={handleBack}
+                disabled={isDeleting}
                 className="btn btn-secondary btn-sm"
               >
                 戻る

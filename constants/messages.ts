@@ -84,7 +84,7 @@ export const ERR_MSG_TEMPLATES: Record<ErrCode, string> = {
   [ERR_CODE.ER015]: 'システムエラーが発生しました。',
   [ERR_CODE.ER016]: '「アカウント名」または「パスワード」は不正です。',
   [ERR_CODE.ER017]: '「パスワード（確認）」が不正です。',
-  [ERR_CODE.ER018]: '{0}は半角数字で入力してください。',
+  [ERR_CODE.ER018]: '「{0}」は半角数字で入力してください。',
   [ERR_CODE.ER019]: '[アカウント名]は(a-z, A-Z, 0-9 と _)の桁のみです。最初の桁は数字ではない。',
   [ERR_CODE.ER020]: '管理者ユーザを削除することはできません。',
   [ERR_CODE.ER021]: 'ソートは (ASC, DESC) でなければなりません。',

@@ -6,6 +6,7 @@ import { INFO_MESSAGES, MSG_CODE } from './messages';
 export const ADM003_ROUTES = {
   detail: '/employees/adm003',
   list: '/employees/adm002',
+  complete: '/employees/adm006',
   edit: (id: number | string) => `/employees/adm004?id=${id}`,
 } as const;
 

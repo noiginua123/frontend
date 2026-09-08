@@ -850,6 +850,15 @@ cursor: pointer;
   background: #ffe1e1;
 }
 
+.box-msg-content {
+  padding: 12px;
+  border: 1px solid #28a745;
+  color: #155724;
+  border-radius: 4px;
+  background: #d4edda;
+  margin-bottom: 12px;
+}
+
 .form-control.is-invalid,
 .datepicker-wrapper input.is-invalid,
 .was-validated .form-control:invalid {
