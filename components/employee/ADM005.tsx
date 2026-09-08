@@ -13,6 +13,8 @@ export default function ADM005() {
     return null;
   }
 
+  const hasCertification = Boolean(formData.certificationId);
+
   return (
     <div className="row">
       <form className="c-form box-shadow">
@@ -57,19 +59,19 @@ export default function ADM005() {
           <li className="title mt-12"><a href="#!">日本語能力</a></li>
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">資格</label>
-            <div className="col-sm col-sm-10">{formData.certificationName ?? formData.certificationId ?? ''}</div>
+            <div className="col-sm col-sm-10">{hasCertification ? (formData.certificationName ?? formData.certificationId ?? '') : ''}</div>
           </li>
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">資格交付日</label>
-            <div className="col-sm col-sm-10">{formData.certificationStartDate || ''}</div>
+            <div className="col-sm col-sm-10">{hasCertification ? (formData.certificationStartDate || '') : ''}</div>
           </li>
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">失効日</label>
-            <div className="col-sm col-sm-10">{formData.certificationEndDate || ''}</div>
+            <div className="col-sm col-sm-10">{hasCertification ? (formData.certificationEndDate || '') : ''}</div>
           </li>
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">点数</label>
-            <div className="col-sm col-sm-10">{formData.certificationScore || ''}</div>
+            <div className="col-sm col-sm-10">{hasCertification ? (formData.certificationScore || '') : ''}</div>
           </li>
           <li className="form-group row d-flex">
             <div className="btn-group col-sm col-sm-10 ml">

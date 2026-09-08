@@ -4,18 +4,14 @@ import React, { Suspense } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import ADM004 from '@/components/employee/ADM004';
 
-function EmployeeCreateContent() {
-  useAuth();
-  return <ADM004 />;
-}
-
 /**
- * Trang ADM004 - nhập liệu thêm mới nhân viên bọc trong Suspense.
+ * Trang ADM004 - nhập liệu thêm mới/chỉnh sửa nhân viên bọc trong Suspense.
  */
 export default function EmployeeCreatePage() {
+  useAuth();
   return (
     <Suspense fallback={null}>
-      <EmployeeCreateContent />
+      <ADM004 />
     </Suspense>
   );
 }

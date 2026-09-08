@@ -1,4 +1,5 @@
 import { ERR_MSG_TEMPLATES, FIELD_LABELS, formatMessage, INFO_MESSAGES } from './messages';
+import { SortField } from '@/types/employee';
 
 export const ADM002_PAGE_SIZE = 20;
 
@@ -7,6 +8,16 @@ export const ADM002_SESSION_KEY = 'adm002_filter_state';
 export const EMPLOYEE_NAME_MAX_LENGTH = 125;
 
 export const EMPLOYEE_NAME_DISPLAY_LENGTH = 20;
+
+/** Cột sắp xếp mặc định của bảng nhân viên. */
+export const DEFAULT_PRIORITY_SORT_FIELD: SortField = 'employeeName';
+
+/** Các cột hỗ trợ sắp xếp trên bảng danh sách nhân viên. */
+export const ADM002_SORT_FIELDS = {
+  EMPLOYEE_NAME: 'employeeName' as const,
+  CERTIFICATION_NAME: 'certificationName' as const,
+  END_DATE: 'endDate' as const,
+};
 
 export const ADM002_MESSAGES = {
   departmentLoadError: '部門を取得できません',

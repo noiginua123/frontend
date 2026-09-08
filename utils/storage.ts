@@ -37,10 +37,7 @@ export function loadStoredADM002State(): ADM002SessionState | null {
     }
 
     return {
-      currentPage:
-        typeof parsed.currentPage === 'number' && parsed.currentPage >= 1
-          ? parsed.currentPage
-          : 1,
+      currentPage: 1, // Luôn quay về trang 1 khi tải lại màn hình danh sách, giữ nguyên searchParams và sortConfig
       searchParams: {
         fullname:
           typeof parsed.searchParams?.fullname === 'string'

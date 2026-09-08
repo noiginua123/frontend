@@ -5,6 +5,7 @@ import type {
   CreateCertificationPayload,
   CreateEmployeePayload,
   EmployeeResponse,
+  EmployeeDetailResponse,
 } from '@/types/employee';
 import type { EmployeeFormData } from '@/lib/validation/validateEmployeeForm';
 
@@ -63,3 +64,26 @@ export async function addEmployee(payload: CreateEmployeePayload): Promise<Emplo
   const response = await apiClient.post<EmployeeResponse>('/employee', payload);
   return response.data;
 }
+
+/**
+ * Lấy thông tin chi tiết nhân viên theo ID (API 05).
+ *
+ * @param employeeId ID của nhân viên cần lấy chi tiết
+ * @return Thông tin chi tiết nhân viên kèm danh sách chứng chỉ
+ */
+export async function getEmployeeDetail(employeeId: number | string): Promise<EmployeeDetailResponse> {
+  const response = await apiClient.get<EmployeeDetailResponse>(`/employee/${employeeId}`);
+  return response.data;
+}
+
+/**
+ * Xóa một nhân viên khỏi hệ thống theo ID (API 08).
+ *
+ * @param employeeId ID của nhân viên cần xóa
+ * @return Response chứa ID và thông báo xóa thành công
+ */
+export async function deleteEmployee(employeeId: number | string): Promise<EmployeeResponse> {
+  const response = await apiClient.delete<EmployeeResponse>(`/employee/${employeeId}`);
+  return response.data;
+}
+

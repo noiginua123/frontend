@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   ADM002_MESSAGES,
   ADM002_PAGE_SIZE,
 } from '@/constants/adm002';
 import { ADM004_ROUTES } from '@/constants/adm004';
+import { SORT_ORDER, SortOrder } from '@/constants/sort';
 import { clearEmployeeFormData } from '@/utils/employeeForm';
 import { getDepartments } from '@/lib/api/department.api';
 import { getEmployees } from '@/lib/api/employee.api';
@@ -15,6 +18,10 @@ import {
   EmployeeSortConfig,
   SortField,
 } from '@/types/employee';
+import {
+  EmployeeSearchFormData,
+  employeeSearchSchema,
+} from '@/lib/validation/employee';
 import {
   createNextSortConfig,
   INITIAL_SORT_CONFIG,
@@ -58,7 +65,7 @@ export function useADM002() {
   useEffect(() => {
     const stored = loadStoredADM002State();
     if (stored) {
-      setCurrentPage(stored.currentPage);
+      setCurrentPage(1); // Luôn quay lại trang 1, giữ nguyên điều kiện tìm kiếm và sắp xếp
       setSearchParams(stored.searchParams);
       setSortConfig(stored.sortConfig);
     }
@@ -162,6 +169,65 @@ export function useADM002() {
   }, []);
 
   const router = useRouter();
+  const nextSearchParams = useSearchParams();
+  const queryString = nextSearchParams ? nextSearchParams.toString() : '';
+
+  // Quản lý form tìm kiếm với React Hook Form & Zod
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setFocus,
+    formState: { errors },
+  } = useForm<EmployeeSearchFormData>({
+    resolver: zodResolver(employeeSearchSchema),
+    defaultValues: {
+      fullname: searchParams.fullname,
+      departmentId: searchParams.departmentId,
+    },
+  });
+
+  // Tự động focus vào ô nhập tên khi vào màn hình
+  useEffect(() => {
+    setFocus('fullname');
+  }, [setFocus]);
+
+  // Đồng bộ lại form khi khôi phục state từ session
+  useEffect(() => {
+    reset({
+      fullname: searchParams.fullname,
+      departmentId: searchParams.departmentId,
+    });
+  }, [searchParams.fullname, searchParams.departmentId, reset]);
+
+  /**
+   * Submit form tìm kiếm dữ liệu.
+   */
+  const onSearchSubmit = handleSubmit((formData: EmployeeSearchFormData): void => {
+    handleSearch(formData);
+  });
+
+  /**
+   * Tạo đường dẫn đến màn hình chi tiết nhân viên ADM003 kèm query params.
+   *
+   * @param id ID nhân viên cần xem chi tiết
+   * @return Đường dẫn chi tiết
+   */
+  const getHref = useCallback((id: number): string => {
+    return `/employees/adm003?id=${id}${queryString ? `&${queryString}` : ''}`;
+  }, [queryString]);
+
+  /**
+   * Hiển thị nhãn cột kèm biểu tượng chiều sắp xếp (▲▽ / ▼△).
+   *
+   * @param label Tên nhãn hiển thị của cột
+   * @param sortOrder Chiều sắp xếp (ASC / DESC)
+   * @return Chuỗi nhãn kèm icon
+   */
+  const renderSortLabel = useCallback((label: string, sortOrder: SortOrder): string => {
+    const icon = sortOrder === SORT_ORDER.ASC ? '▲▽' : '▼△';
+    return `${label} ${icon}`;
+  }, []);
 
   /**
    * Chuyển hướng sang màn hình thêm mới nhân viên ADM004 (xóa form tạm cũ nếu có).
@@ -169,6 +235,15 @@ export function useADM002() {
   const handleNavigateToAdd = useCallback((): void => {
     clearEmployeeFormData();
     router.push(ADM004_ROUTES.input);
+  }, [router]);
+
+  /**
+   * Chuyển hướng sang màn hình xem chi tiết nhân viên ADM003 kèm ID.
+   *
+   * @param employeeId ID của nhân viên cần xem chi tiết
+   */
+  const handleViewDetail = useCallback((employeeId: number | string): void => {
+    router.push(`/employees/adm003?id=${employeeId}`);
   }, [router]);
 
   const totalPages = Math.ceil(totalRecords / ADM002_PAGE_SIZE);
@@ -187,9 +262,15 @@ export function useADM002() {
     searchParams,
     sortState: sortConfig.sortState,
     prioritySortField: sortConfig.prioritySortField,
+    register,
+    errors,
+    onSearchSubmit,
+    getHref,
+    renderSortLabel,
     handleSearch,
     handleSort,
     handlePageChange,
     handleNavigateToAdd,
+    handleViewDetail,
   };
 }
