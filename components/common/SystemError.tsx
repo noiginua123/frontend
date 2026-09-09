@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { ADM003_ROUTES } from '@/constants/adm003';
+import { ROUTES } from '@/constants/routes';
 import { ERR_MSG_TEMPLATES, ERR_CODE } from '@/constants/messages';
 
 interface SystemErrorProps {
@@ -29,7 +29,7 @@ export default function SystemError({
     if (onAction) {
       onAction();
     } else {
-      router.push(ADM003_ROUTES.list);
+      router.push(ROUTES.EMPLOYEES.LIST);
     }
   };
 

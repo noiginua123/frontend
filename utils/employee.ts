@@ -1,4 +1,4 @@
-import { EMPLOYEE_NAME_DISPLAY_LENGTH } from '@/constants/adm002';
+import { EMPLOYEE_NAME_DISPLAY_LENGTH } from '@/constants/employee';
 
 /**
  * Rút gọn chuỗi văn bản (tên nhân viên, chứng chỉ...) khi vượt quá 20 ký tự và thêm dấu '...'.

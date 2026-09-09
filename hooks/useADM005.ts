@@ -7,12 +7,9 @@ import {
   loadEmployeeFormData,
   clearEmployeeFormData,
   type StoredEmployeeForm,
-} from '@/utils/employeeForm';
-import {
-  ADM004_ROUTES,
-  ADM006_MESSAGE_KEY,
-  ADM004_ERROR_KEY,
-} from '@/constants/adm004';
+} from '@/utils/storage';
+import { ROUTES } from '@/constants/routes';
+import { STORAGE_KEYS } from '@/constants/storage';
 import { ERR_CODE, MSG_CODE, INFO_MESSAGES, getErrorMessage } from '@/constants/messages';
 
 interface BackendErrorBody {
@@ -38,7 +35,7 @@ export function useADM005() {
 
   useEffect(() => {
     if (!formData) {
-      router.replace(ADM004_ROUTES.input);
+      router.replace(ROUTES.EMPLOYEES.INPUT);
     }
   }, [formData, router]);
 
@@ -58,10 +55,10 @@ export function useADM005() {
       const payload = transformCreatePayload(formData);
       await addEmployee(payload);
       if (typeof window !== 'undefined') {
-        window.sessionStorage.setItem(ADM006_MESSAGE_KEY, INFO_MESSAGES[MSG_CODE.MSG001]);
+        window.sessionStorage.setItem(STORAGE_KEYS.ADM006_SUCCESS_MESSAGE, INFO_MESSAGES[MSG_CODE.MSG001]);
       }
       clearEmployeeFormData();
-      router.push(ADM004_ROUTES.complete);
+      router.push(ROUTES.EMPLOYEES.COMPLETE);
     } catch (err) {
       let message = getErrorMessage(ERR_CODE.ER023);
       let isBusinessError = false;
@@ -82,9 +79,9 @@ export function useADM005() {
 
       if (isBusinessError) {
         if (typeof window !== 'undefined') {
-          window.sessionStorage.setItem(ADM004_ERROR_KEY, message);
+          window.sessionStorage.setItem(STORAGE_KEYS.ADM004_ERROR, message);
         }
-        router.push(`${ADM004_ROUTES.input}?mode=back`);
+        router.push(`${ROUTES.EMPLOYEES.INPUT}?mode=back`);
         return;
       }
 
@@ -97,7 +94,7 @@ export function useADM005() {
    * Xử lý quay lại màn hình nhập liệu ADM004 kèm cờ mode=back để khôi phục dữ liệu đã nhập.
    */
   const handleBack = () => {
-    router.push(`${ADM004_ROUTES.input}?mode=back`);
+    router.push(`${ROUTES.EMPLOYEES.INPUT}?mode=back`);
   };
 
   return {

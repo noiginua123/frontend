@@ -64,12 +64,20 @@ export default function ADM004() {
     <div className="row">
       <form className="c-form box-shadow" onSubmit={handleConfirm} noValidate>
         <ul>
+          {/* Tiêu đề màn hình đăng ký thông tin */}
           <li className="title">会員情報登録</li>
+
+          {/* Khối hiển thị thông báo lỗi tổng quát từ backend (nếu có) */}
           {globalError && (
             <li className="box-err">
               <div className="box-err-content">{globalError}</div>
             </li>
           )}
+
+          {/* =================================================================
+              PHẦN 1: THÔNG TIN TÀI KHOẢN VÀ THÔNG TIN CÁ NHÂN
+              ================================================================= */}
+          {/* 1.1. Tên tài khoản đăng nhập */}
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2"><i className="relative">アカウント名:<span className="note-red">*</span></i></label>
             <div className="col-sm col-sm-10">
@@ -218,7 +226,12 @@ export default function ADM004() {
               )}
             </div>
           </li>
+
+          {/* =================================================================
+              PHẦN 2: THÔNG TIN TRÌNH ĐỘ TIẾNG NHẬT (日本語能力)
+              ================================================================= */}
           <li className="title mt-12"><a href="#!">日本語能力</a></li>
+          {/* 2.1. Trình độ chứng chỉ */}
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2"><i className="relative">資格:</i></label>
             <div className="col-sm col-sm-10">
@@ -333,6 +346,10 @@ export default function ADM004() {
               )}
             </div>
           </li>
+
+          {/* =================================================================
+              PHẦN 3: NHÓM NÚT BẤM HÀNH ĐỘNG (XÁC NHẬN / QUAY LẠI)
+              ================================================================= */}
           <li className="form-group row d-flex">
             <div className="btn-group col-sm col-sm-10 ml">
               <button type="submit" className="btn btn-primary btn-sm">確認</button>

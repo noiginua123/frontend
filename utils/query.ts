@@ -1,4 +1,4 @@
-import { ADM002_PAGE_SIZE } from '@/constants/adm002';
+import { ADM002_PAGE_SIZE } from '@/constants/employee';
 import type {
   EmployeeSearchFilter,
   EmployeeSortConfig,

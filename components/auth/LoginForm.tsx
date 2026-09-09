@@ -7,6 +7,7 @@ import { apiClient } from '@/lib/api/client';
 import { storeToken } from '@/lib/auth/token';
 import { loginSchema, LoginForm as LoginFormType } from '@/lib/validation/auth';
 import { LoginResponse } from '@/types/auth';
+import { ROUTES } from '@/constants/routes';
 
 /**
  * Component form đăng nhập hệ thống ADM001.
@@ -28,7 +29,7 @@ export default function LoginForm() {
     try {
       const response = await apiClient.post<LoginResponse>('/login', data);
       storeToken(response.data.accessToken, response.data.tokenType);
-      router.push('/employees/adm002');
+      router.push(ROUTES.EMPLOYEES.LIST);
     } catch (error) {
       console.error('Login failed:', error);
       setError('root', {

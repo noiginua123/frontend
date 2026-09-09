@@ -1,3 +1,5 @@
+import { STORAGE_KEYS } from '@/constants/storage';
+
 /**
  * Lưu trữ access token và token type vào sessionStorage.
  *
@@ -5,8 +7,8 @@
  * @param tokenType Loại token (Bearer)
  */
 export function storeToken(token: string, tokenType: string): void {
-  sessionStorage.setItem('access_token', token);
-  sessionStorage.setItem('token_type', tokenType);
+  sessionStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token);
+  sessionStorage.setItem(STORAGE_KEYS.TOKEN_TYPE, tokenType);
 }
 
 /**
@@ -15,8 +17,8 @@ export function storeToken(token: string, tokenType: string): void {
  * @return Đối tượng chứa token và type, hoặc null nếu không tồn tại
  */
 export function getToken(): { accessToken: string; tokenType: string } | null {
-  const accessToken = sessionStorage.getItem('access_token');
-  const tokenType = sessionStorage.getItem('token_type');
+  const accessToken = sessionStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+  const tokenType = sessionStorage.getItem(STORAGE_KEYS.TOKEN_TYPE);
 
   if (accessToken && tokenType) {
     return { accessToken, tokenType };
@@ -28,9 +30,9 @@ export function getToken(): { accessToken: string; tokenType: string } | null {
  * Xóa thông tin token khỏi sessionStorage khi đăng xuất.
  */
 export function removeToken(): void {
-  sessionStorage.removeItem('access_token');
-  sessionStorage.removeItem('token_type');
-  sessionStorage.removeItem('adm002_filter_state');
+  sessionStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
+  sessionStorage.removeItem(STORAGE_KEYS.TOKEN_TYPE);
+  sessionStorage.removeItem(STORAGE_KEYS.ADM002_FILTER);
 }
 
 /**

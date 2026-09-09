@@ -9,12 +9,10 @@ import {
   employeeFormSchema,
   type EmployeeFormData,
 } from '@/lib/validation/validateEmployeeForm';
-import { saveEmployeeFormData, loadEmployeeFormData, clearEmployeeFormData } from '@/utils/employeeForm';
-import {
-  ADM004_ROUTES,
-  ADM004_MESSAGES,
-  ADM004_ERROR_KEY,
-} from '@/constants/adm004';
+import { saveEmployeeFormData, loadEmployeeFormData, clearEmployeeFormData } from '@/utils/storage';
+import { ROUTES } from '@/constants/routes';
+import { STORAGE_KEYS } from '@/constants/storage';
+import { ADM004_MESSAGES } from '@/constants/employee';
 import type { DepartmentDTO } from '@/types/department';
 import type { CertificationDTO } from '@/types/certification';
 
@@ -65,11 +63,11 @@ export function useADM004() {
     if (typeof window === 'undefined' || mode !== 'back') {
       return '';
     }
-    const rawError = window.sessionStorage.getItem(ADM004_ERROR_KEY);
+    const rawError = window.sessionStorage.getItem(STORAGE_KEYS.ADM004_ERROR);
     if (!rawError) {
       return '';
     }
-    window.sessionStorage.removeItem(ADM004_ERROR_KEY);
+    window.sessionStorage.removeItem(STORAGE_KEYS.ADM004_ERROR);
     return rawError;
   });
 
@@ -116,7 +114,7 @@ export function useADM004() {
     if (mode !== 'back') {
       clearEmployeeFormData();
       if (typeof window !== 'undefined') {
-        window.sessionStorage.removeItem(ADM004_ERROR_KEY);
+        window.sessionStorage.removeItem(STORAGE_KEYS.ADM004_ERROR);
       }
     }
   }, [mode]);
@@ -212,7 +210,7 @@ export function useADM004() {
       departmentName: getDepartmentName(values.departmentId),
       certificationName: getCertificationName(values.certificationId),
     });
-    router.push(ADM004_ROUTES.confirm);
+    router.push(ROUTES.EMPLOYEES.CONFIRM);
   });
 
   /**
@@ -221,9 +219,9 @@ export function useADM004() {
   const handleBack = () => {
     clearEmployeeFormData();
     if (typeof window !== 'undefined') {
-      window.sessionStorage.removeItem(ADM004_ERROR_KEY);
+      window.sessionStorage.removeItem(STORAGE_KEYS.ADM004_ERROR);
     }
-    router.push(ADM004_ROUTES.list);
+    router.push(ROUTES.EMPLOYEES.LIST);
   };
 
   return {

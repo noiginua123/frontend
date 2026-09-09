@@ -2,7 +2,7 @@ import { z } from 'zod';
 import {
   ADM002_MESSAGES,
   EMPLOYEE_NAME_MAX_LENGTH,
-} from '@/constants/adm002';
+} from '@/constants/employee';
 import { ERR_CODE, FIELD_LABELS, getErrorMessage } from '@/constants/messages';
 import { codePointLength } from '@/utils/validation';
 

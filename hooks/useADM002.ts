@@ -5,10 +5,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   ADM002_MESSAGES,
   ADM002_PAGE_SIZE,
-} from '@/constants/adm002';
-import { ADM004_ROUTES } from '@/constants/adm004';
+} from '@/constants/employee';
+import { ROUTES } from '@/constants/routes';
 import { SORT_ORDER, SortOrder } from '@/constants/sort';
-import { clearEmployeeFormData } from '@/utils/employeeForm';
 import { getDepartments } from '@/lib/api/department.api';
 import { getEmployees } from '@/lib/api/employee.api';
 import { DepartmentDTO } from '@/types/department';
@@ -31,6 +30,7 @@ import {
   ADM002SessionState,
   loadStoredADM002State,
   saveStoredADM002State,
+  clearEmployeeFormData,
 } from '@/utils/storage';
 import { buildEmployeeQueryParams } from '@/utils/query';
 import { createVisiblePages } from '@/utils/pagination';
@@ -61,11 +61,11 @@ export function useADM002() {
   const [sortConfig, setSortConfig] = useState<EmployeeSortConfig>(INITIAL_SORT_CONFIG);
   const [isRestored, setIsRestored] = useState<boolean>(false);
 
-  // Khôi phục trạng thái bộ lọc từ sessionStorage sau khi mount trên Client
+  // Khôi phục trạng thái bộ lọc và phân trang từ sessionStorage sau khi mount trên Client
   useEffect(() => {
     const stored = loadStoredADM002State();
     if (stored) {
-      setCurrentPage(1); // Luôn quay lại trang 1, giữ nguyên điều kiện tìm kiếm và sắp xếp
+      setCurrentPage(stored.currentPage); // Giữ lại đúng trang đã lưu trong session
       setSearchParams(stored.searchParams);
       setSortConfig(stored.sortConfig);
     }
@@ -214,7 +214,8 @@ export function useADM002() {
    * @return Đường dẫn chi tiết
    */
   const getHref = useCallback((id: number): string => {
-    return `/employees/adm003?id=${id}${queryString ? `&${queryString}` : ''}`;
+    const base = ROUTES.EMPLOYEES.DETAIL(id);
+    return queryString ? `${base}&${queryString}` : base;
   }, [queryString]);
 
   /**
@@ -234,7 +235,7 @@ export function useADM002() {
    */
   const handleNavigateToAdd = useCallback((): void => {
     clearEmployeeFormData();
-    router.push(ADM004_ROUTES.input);
+    router.push(ROUTES.EMPLOYEES.INPUT);
   }, [router]);
 
   /**
@@ -243,7 +244,7 @@ export function useADM002() {
    * @param employeeId ID của nhân viên cần xem chi tiết
    */
   const handleViewDetail = useCallback((employeeId: number | string): void => {
-    router.push(`/employees/adm003?id=${employeeId}`);
+    router.push(ROUTES.EMPLOYEES.DETAIL(employeeId));
   }, [router]);
 
   const totalPages = Math.ceil(totalRecords / ADM002_PAGE_SIZE);

@@ -4,8 +4,9 @@ import axios from 'axios';
 
 import { getEmployeeDetail, deleteEmployee } from '@/lib/api/employee.api';
 import type { EmployeeDetailResponse } from '@/types/employee';
-import { ADM003_MESSAGES, ADM003_ROUTES } from '@/constants/adm003';
-import { ADM006_MESSAGE_KEY } from '@/constants/adm004';
+import { ADM003_MESSAGES } from '@/constants/employee';
+import { ROUTES } from '@/constants/routes';
+import { STORAGE_KEYS } from '@/constants/storage';
 import { ERR_CODE, getErrorMessage } from '@/constants/messages';
 
 /**
@@ -39,7 +40,7 @@ export function useADM003() {
       setEmployee(data);
     } catch {
       // Khi trường hợp ID lỗi (không tồn tại trong DB, lỗi hệ thống...), redirect sang màn /systemError
-      router.replace('/systemError');
+      router.replace(ROUTES.SYSTEM_ERROR);
     } finally {
       setLoading(false);
     }
@@ -49,7 +50,7 @@ export function useADM003() {
   useEffect(() => {
     // Nếu ID thiếu, rỗng hoặc không phải số hợp lệ -> redirect ngay sang /systemError
     if (!employeeId || employeeId.trim() === '' || isNaN(Number(employeeId))) {
-      router.replace('/systemError');
+      router.replace(ROUTES.SYSTEM_ERROR);
       return;
     }
 
@@ -61,7 +62,7 @@ export function useADM003() {
    */
   const handleEdit = useCallback(() => {
     if (employeeId) {
-      router.push(ADM003_ROUTES.edit(employeeId));
+      router.push(ROUTES.EMPLOYEES.EDIT(employeeId));
     }
   }, [employeeId, router]);
 
@@ -96,11 +97,11 @@ export function useADM003() {
       // 3. Lưu thông báo MSG003 vào sessionStorage và điều hướng sang màn hoàn tất ADM006
       if (typeof window !== 'undefined') {
         window.sessionStorage.setItem(
-          ADM006_MESSAGE_KEY,
+          STORAGE_KEYS.ADM006_SUCCESS_MESSAGE,
           ADM003_MESSAGES.deleteSuccess
         );
       }
-      router.push(ADM003_ROUTES.complete);
+      router.push(ROUTES.EMPLOYEES.COMPLETE);
     } catch (err: unknown) {
       setIsDeleting(false);
 
@@ -148,7 +149,7 @@ export function useADM003() {
    * Quay lại màn hình danh sách ADM002.
    */
   const handleBack = useCallback(() => {
-    router.push(ADM003_ROUTES.list);
+    router.push(ROUTES.EMPLOYEES.LIST);
   }, [router]);
 
   return {

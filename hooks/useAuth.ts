@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getToken, isTokenExpired } from '@/lib/auth/token';
+import { ROUTES } from '@/constants/routes';
 
 /**
  * Hook kiểm tra xác thực người dùng cho các trang bảo vệ (protected).
@@ -12,7 +13,7 @@ const useAuth = (): void => {
   useEffect(() => {
     const token = getToken();
     if (!token || isTokenExpired(token.accessToken)) {
-      router.push('/login');
+      router.push(ROUTES.AUTH.LOGIN);
     }
   }, [router]);
 };
@@ -27,7 +28,7 @@ const useGuest = (): void => {
   useEffect(() => {
     const token = getToken();
     if (token && !isTokenExpired(token.accessToken)) {
-      router.push('/employees/adm002');
+      router.push(ROUTES.EMPLOYEES.LIST);
     }
   }, [router]);
 };

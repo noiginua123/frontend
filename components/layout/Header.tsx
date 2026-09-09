@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { ROUTES } from '@/constants/routes';
 
 /**
  * Component hiển thị thanh điều hướng đầu trang (Header) của ứng dụng.
@@ -17,10 +18,10 @@ const Header = () => {
           <h5 className="title-brand mr-auto">Luvina Software</h5>
           <ul className="navbar-nav flex-row d-flex">
             <li className="nav-item">
-              <Link href="/logout">ログアウト</Link>
+              <Link href={ROUTES.AUTH.LOGOUT}>ログアウト</Link>
             </li>
             <li className="nav-item">
-              <Link href="/employees/adm002">トップ</Link>
+              <Link href={ROUTES.EMPLOYEES.LIST}>トップ</Link>
             </li>
           </ul>
         </div>

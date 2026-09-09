@@ -7,7 +7,7 @@ import {
   ADM002_MESSAGES,
   ADM002_SORT_FIELDS,
   EMPLOYEE_NAME_MAX_LENGTH,
-} from '@/constants/adm002';
+} from '@/constants/employee';
 import { formatEmployeeDate, truncateEmployeeName } from '@/utils/employee';
 
 /**
