@@ -31,13 +31,13 @@ export function transformCreatePayload(form: EmployeeFormData): CreateEmployeePa
   const hasCertification = form.certificationId != null && form.certificationId.trim() !== '';
   const certifications: CreateCertificationPayload[] = hasCertification
     ? [
-        {
-          certificationId: form.certificationId.trim(),
-          startDate: form.certificationStartDate.trim(),
-          endDate: form.certificationEndDate.trim(),
-          score: form.certificationScore.trim(),
-        },
-      ]
+      {
+        certificationId: form.certificationId.trim(),
+        startDate: form.certificationStartDate.trim(),
+        endDate: form.certificationEndDate.trim(),
+        score: form.certificationScore.trim(),
+      },
+    ]
     : [];
 
   return {
@@ -66,7 +66,7 @@ export async function addEmployee(payload: CreateEmployeePayload): Promise<Emplo
 }
 
 /**
- * Lấy thông tin chi tiết nhân viên theo ID (API 05).
+ * Lấy thông tin chi tiết nhân viên theo ID.
  *
  * @param employeeId ID của nhân viên cần lấy chi tiết
  * @return Thông tin chi tiết nhân viên kèm danh sách chứng chỉ
@@ -77,7 +77,7 @@ export async function getEmployeeDetail(employeeId: number | string): Promise<Em
 }
 
 /**
- * Xóa một nhân viên khỏi hệ thống theo ID (API 08).
+ * Xóa một nhân viên khỏi hệ thống theo ID.
  *
  * @param employeeId ID của nhân viên cần xóa
  * @return Response chứa ID và thông báo xóa thành công
