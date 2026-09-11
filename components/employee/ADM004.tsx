@@ -1,9 +1,12 @@
 'use client';
 
 import { Controller } from 'react-hook-form';
-import DatePicker from 'react-datepicker';
+import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format, parse } from 'date-fns';
+import { ja } from 'date-fns/locale/ja';
+
+registerLocale('ja', ja);
 
 import { useADM004 } from '@/hooks/useADM004';
 
@@ -40,6 +43,7 @@ export default function ADM004() {
     certifications,
     globalError,
     isCertificationSelected,
+    isEdit,
     handleCertificationChange,
     handleCertificationStartDateChange,
     handleConfirm,
@@ -64,8 +68,8 @@ export default function ADM004() {
     <div className="row">
       <form className="c-form box-shadow" onSubmit={handleConfirm} noValidate>
         <ul>
-          {/* Tiêu đề màn hình đăng ký thông tin */}
-          <li className="title">会員情報登録</li>
+          {/* Tiêu đề màn hình đăng ký / chỉnh sửa thông tin */}
+          <li className="title">{isEdit ? '会員情報編集' : '会員情報登録'}</li>
 
           {/* Khối hiển thị thông báo lỗi tổng quát từ backend (nếu có) */}
           {globalError && (
@@ -79,15 +83,21 @@ export default function ADM004() {
               ================================================================= */}
           {/* 1.1. Tên tài khoản đăng nhập */}
           <li className="form-group row d-flex">
-            <label className="col-form-label col-sm-2"><i className="relative">アカウント名:<span className="note-red">*</span></i></label>
+            <label className="col-form-label col-sm-2" htmlFor="employeeLoginId">
+              <i className="relative">アカウント名:{!isEdit && <span className="note-red">*</span>}</i>
+            </label>
             <div className="col-sm col-sm-10">
               <input
+                id="employeeLoginId"
                 type="text"
-                className={`form-control ${errors.employeeLoginId ? 'is-invalid' : ''}`}
+                autoFocus={!isEdit}
+                className={`form-control ${!isEdit && errors.employeeLoginId ? 'is-invalid' : ''}`}
                 {...register('employeeLoginId')}
+                disabled={isEdit}
+                readOnly={isEdit}
                 onFocus={() => handleFocus('employeeLoginId')}
               />
-              {errors.employeeLoginId && (
+              {!isEdit && errors.employeeLoginId && (
                 <div className="invalid-feedback d-block">{errors.employeeLoginId.message}</div>
               )}
             </div>
@@ -156,6 +166,10 @@ export default function ADM004() {
                       onFocus={() => handleFocus('employeeBirthDate')}
                       onBlur={field.onBlur}
                       dateFormat="yyyy/MM/dd"
+                      showYearDropdown
+                      showMonthDropdown
+                      dropdownMode="select"
+                      locale="ja"
                       onKeyDown={handleDatePickerKeyDown}
                       onChangeRaw={(e) => e?.preventDefault()}
                     />
@@ -197,7 +211,12 @@ export default function ADM004() {
             </div>
           </li>
           <li className="form-group row d-flex">
-            <label className="col-form-label col-sm-2"><i className="relative">パスワード:<span className="note-red">*</span></i></label>
+            <label className="col-form-label col-sm-2">
+              <i className="relative">
+                パスワード:
+                {!isEdit && <span className="note-red">*</span>}
+              </i>
+            </label>
             <div className="col-sm col-sm-10">
               <input
                 type="password"
@@ -212,7 +231,12 @@ export default function ADM004() {
             </div>
           </li>
           <li className="form-group row d-flex">
-            <label className="col-form-label col-sm-2"><i className="relative">パスワード（確認）:<span className="note-red">*</span></i></label>
+            <label className="col-form-label col-sm-2">
+              <i className="relative">
+                パスワード（確認）:
+                {!isEdit && <span className="note-red">*</span>}
+              </i>
+            </label>
             <div className="col-sm col-sm-10">
               <input
                 type="password"
@@ -279,6 +303,10 @@ export default function ADM004() {
                       onFocus={() => handleFocus('certificationStartDate')}
                       onBlur={field.onBlur}
                       dateFormat="yyyy/MM/dd"
+                      showYearDropdown
+                      showMonthDropdown
+                      dropdownMode="select"
+                      locale="ja"
                       onKeyDown={handleDatePickerKeyDown}
                       onChangeRaw={(e) => e?.preventDefault()}
                       disabled={!isCertificationSelected}
@@ -313,6 +341,10 @@ export default function ADM004() {
                       onFocus={() => handleFocus('certificationEndDate')}
                       onBlur={field.onBlur}
                       dateFormat="yyyy/MM/dd"
+                      showYearDropdown
+                      showMonthDropdown
+                      dropdownMode="select"
+                      locale="ja"
                       onKeyDown={handleDatePickerKeyDown}
                       onChangeRaw={(e) => e?.preventDefault()}
                       disabled={!isCertificationSelected}

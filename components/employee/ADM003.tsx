@@ -85,31 +85,31 @@ export default function ADM003() {
 
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">アカウント名</label>
-            <div className="col-sm col-sm-10">{employee.employeeLoginId}</div>
+            <div className="col-sm col-sm-10 text-break">{employee.employeeLoginId}</div>
           </li>
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">グループ</label>
-            <div className="col-sm col-sm-10">{employee.departmentName}</div>
+            <div className="col-sm col-sm-10 text-break">{employee.departmentName}</div>
           </li>
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">氏名</label>
-            <div className="col-sm col-sm-10">{employee.employeeName}</div>
+            <div className="col-sm col-sm-10 text-break">{employee.employeeName}</div>
           </li>
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">カタカナ氏名</label>
-            <div className="col-sm col-sm-10">{employee.employeeNameKana}</div>
+            <div className="col-sm col-sm-10 text-break">{employee.employeeNameKana}</div>
           </li>
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">生年月日</label>
-            <div className="col-sm col-sm-10">{employee.employeeBirthDate}</div>
+            <div className="col-sm col-sm-10 text-break">{employee.employeeBirthDate}</div>
           </li>
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">メールアドレス</label>
-            <div className="col-sm col-sm-10">{employee.employeeEmail}</div>
+            <div className="col-sm col-sm-10 text-break">{employee.employeeEmail}</div>
           </li>
           <li className="form-group row d-flex bor-none">
             <label className="col-form-label col-sm-2">電話番号</label>
-            <div className="col-sm col-sm-10">{employee.employeeTelephone}</div>
+            <div className="col-sm col-sm-10 text-break">{employee.employeeTelephone}</div>
           </li>
 
           {/* Phần thông tin chứng chỉ tiếng Nhật (luôn hiển thị, để trống khi không có chứng chỉ) */}

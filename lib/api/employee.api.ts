@@ -4,10 +4,12 @@ import type {
   ListEmployeeResponse,
   CreateCertificationPayload,
   CreateEmployeePayload,
+  UpdateEmployeePayload,
   EmployeeResponse,
   EmployeeDetailResponse,
 } from '@/types/employee';
 import type { EmployeeFormData } from '@/lib/validation/validateEmployeeForm';
+import type { StoredEmployeeForm } from '@/utils/storage';
 
 /**
  * Tìm kiếm và lấy danh sách nhân viên theo tiêu chí.
@@ -61,7 +63,37 @@ export function transformCreatePayload(form: EmployeeFormData): CreateEmployeePa
  * @return Response chứa id và message thành công
  */
 export async function addEmployee(payload: CreateEmployeePayload): Promise<EmployeeResponse> {
-  const response = await apiClient.post<EmployeeResponse>('/employee', payload);
+  const response = await apiClient.post<EmployeeResponse>('/employee?mode=add', payload);
+  return response.data;
+}
+
+/**
+ * Chuyển dữ liệu form đã lưu tạm (ADM004/ADM005) thành payload cập nhật:
+ * nếu người dùng không đổi mật khẩu (để trống), loại bỏ trường password để giữ nguyên mật khẩu cũ trong DB.
+ *
+ * @param form Dữ liệu form kèm employeeId
+ * @return Payload cập nhật nhân viên gửi lên backend
+ */
+export function transformUpdatePayload(form: StoredEmployeeForm): UpdateEmployeePayload {
+  const base = transformCreatePayload(form);
+  const payload: UpdateEmployeePayload = {
+    ...base,
+    employeeId: form.employeeId ?? '',
+  };
+  if (!form.employeeLoginPassword || form.employeeLoginPassword.trim() === '') {
+    delete payload.employeeLoginPassword;
+  }
+  return payload;
+}
+
+/**
+ * Gọi API cập nhật thông tin nhân viên (ghi DB - PUT /employee?mode=edit).
+ *
+ * @param payload Dữ liệu nhân viên cần cập nhật kèm ID
+ * @return Response chứa ID và message thành công (MSG002)
+ */
+export async function updateEmployee(payload: UpdateEmployeePayload): Promise<EmployeeResponse> {
+  const response = await apiClient.put<EmployeeResponse>('/employee?mode=edit', payload);
   return response.data;
 }
 
@@ -85,5 +117,16 @@ export async function getEmployeeDetail(employeeId: number | string): Promise<Em
 export async function deleteEmployee(employeeId: number | string): Promise<EmployeeResponse> {
   const response = await apiClient.delete<EmployeeResponse>(`/employee/${employeeId}`);
   return response.data;
+}
+
+/**
+ * Kiểm tra nhanh sự tồn tại của nhân viên trong cơ sở dữ liệu theo ID (siêu nhẹ, không over-fetching).
+ *
+ * @param employeeId ID nhân viên cần kiểm tra
+ * @return true nếu nhân viên tồn tại trong DB, ngược lại false
+ */
+export async function checkEmployeeExists(employeeId: number | string): Promise<boolean> {
+  const response = await apiClient.get<boolean>(`/employee/${employeeId}/exists`);
+  return Boolean(response.data);
 }
 

@@ -39,31 +39,31 @@ export default function ADM005() {
               ================================================================= */}
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">アカウント名</label>
-            <div className="col-sm col-sm-10">{formData.employeeLoginId}</div>
+            <div className="col-sm col-sm-10 text-break">{formData.employeeLoginId}</div>
           </li>
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">グループ</label>
-            <div className="col-sm col-sm-10">{formData.departmentName ?? formData.departmentId}</div>
+            <div className="col-sm col-sm-10 text-break">{formData.departmentName ?? formData.departmentId}</div>
           </li>
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">氏名</label>
-            <div className="col-sm col-sm-10">{formData.employeeName}</div>
+            <div className="col-sm col-sm-10 text-break">{formData.employeeName}</div>
           </li>
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">カタカナ氏名</label>
-            <div className="col-sm col-sm-10">{formData.employeeNameKana}</div>
+            <div className="col-sm col-sm-10 text-break">{formData.employeeNameKana}</div>
           </li>
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">生年月日</label>
-            <div className="col-sm col-sm-10">{formData.employeeBirthDate}</div>
+            <div className="col-sm col-sm-10 text-break">{formData.employeeBirthDate}</div>
           </li>
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">メールアドレス</label>
-            <div className="col-sm col-sm-10">{formData.employeeEmail}</div>
+            <div className="col-sm col-sm-10 text-break">{formData.employeeEmail}</div>
           </li>
           <li className="form-group row d-flex bor-none">
             <label className="col-form-label col-sm-2">電話番号</label>
-            <div className="col-sm col-sm-10">{formData.employeeTelephone}</div>
+            <div className="col-sm col-sm-10 text-break">{formData.employeeTelephone}</div>
           </li>
 
           {/* =================================================================

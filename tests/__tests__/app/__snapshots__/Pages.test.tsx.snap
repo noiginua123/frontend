@@ -66,6 +66,7 @@ exports[`Page Snapshots renders EmployeeEditPage unchanged 1`] = `
         >
           <label
             class="col-form-label col-sm-2"
+            for="employeeLoginId"
           >
             <i
               class="relative"
@@ -83,6 +84,7 @@ exports[`Page Snapshots renders EmployeeEditPage unchanged 1`] = `
           >
             <input
               class="form-control "
+              id="employeeLoginId"
               name="employeeLoginId"
               type="text"
             />
@@ -770,7 +772,7 @@ exports[`Page Snapshots renders RootLayout unchanged 1`] = `
           class="content-main"
         >
           <p>
-            Copyright © 2010 ルビナソフトウエア株式会社. All rights reserved.
+            Copyright © 2026 ルビナソフトウエア株式会社. All rights reserved.
           </p>
         </div>
       </footer>

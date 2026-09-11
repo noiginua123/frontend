@@ -5,6 +5,22 @@ export interface ApiError {
   code?: string;
 }
 
+/**
+ * Cấu trúc thông tin message lỗi từ Backend API
+ */
+export interface BackendErrorMessage {
+  code?: string;
+  params?: (string | number)[];
+}
+
+/**
+ * Cấu trúc body trả về khi Backend API xảy ra lỗi
+ */
+export interface BackendErrorBody {
+  code?: string | number;
+  message?: BackendErrorMessage;
+}
+
 export interface PaginationParams {
   page: number;
   limit: number;

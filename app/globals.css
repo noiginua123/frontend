@@ -503,30 +503,130 @@ select {
 }
 
 .pagin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px 0;
   text-align: center;
-  padding: 12px;
 }
 
 .pagin .btn {
-  margin-right: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  margin: 0;
+  border-radius: 8px;
+  border: 1.5px solid #d8e2ef;
+  background-color: #ffffff;
+  color: #5e6e82;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
   text-decoration: none;
-  text-align: center;
-  min-width: auto;
-  display: inline-block;
-  vertical-align: top;
-  height: auto;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+  user-select: none;
 }
 
-.svg-inline--fa {
-  display: inline-block;
-  font-size: inherit;
-  height: 1em;
-  overflow: visible;
-  vertical-align: -.125em;
+/* Nút số trang thông thường (không active) */
+.pagin .btn.text-primary,
+.pagin .text-primary {
+  color: #2c7be5;
 }
-.btn-disabled, .btn-disabled:hover {
-  color: #ccc;
-  cursor: not-allowed;
+
+.pagin .btn-pre,
+.pagin .btn-next {
+  color: #5e6e82;
+}
+
+/* Biểu tượng SVG bên trong các nút pagination */
+.pagin .svg-inline--fa {
+  display: inline-block;
+  height: 13px;
+  width: auto;
+  fill: currentColor;
+  vertical-align: middle;
+  transition: fill 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pagin .svg-inline--fa.fa-ellipsis-h {
+  height: 8px;
+}
+
+/* Hover state cho các nút không phải active: Chữ và icon chuyển màu xanh lá cây #57b846, viền xanh lá cây */
+.pagin .btn:not(.active):not(.btn-active):not(:disabled):hover {
+  color: #57b846 !important;
+  border-color: #57b846 !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 0 0 1px #57b846, 0 2px 6px rgba(87, 184, 70, 0.15) !important;
+}
+
+.pagin .btn:not(.active):not(.btn-active):not(:disabled):hover .svg-inline--fa {
+  color: #57b846 !important;
+  fill: #57b846 !important;
+}
+
+/* Active state: Trang hiện tại có NỀN TRẮNG, CHỮ MÀU XANH LÁ CÂY #57b846 (theo đúng ảnh mẫu) */
+.pagin .btn.active,
+.pagin .btn.btn-active,
+.pagin .btn.active:disabled,
+.pagin .btn.btn-active:disabled,
+.pagin .btn.active:hover,
+.pagin .btn.btn-active:hover {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border: 1.5px solid #d8e2ef !important;
+  border-color: #d8e2ef !important;
+  color: #57b846 !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  cursor: default !important;
+  opacity: 1 !important;
+}
+
+.pagin .btn.active .svg-inline--fa,
+.pagin .btn.btn-active .svg-inline--fa {
+  color: #57b846 !important;
+  fill: #57b846 !important;
+}
+
+/* Disabled state: Nút disabled (< hoặc > khi ở trang đầu hoặc trang cuối) */
+.pagin .btn:disabled:not(.active):not(.btn-active),
+.pagin .btn.disabled:not(.active):not(.btn-active),
+.pagin .btn-disabled:not(.active):not(.btn-active) {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border-color: #e5e9f2 !important;
+  color: #c0c7d2 !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+  opacity: 0.7 !important;
+}
+
+.pagin .btn:disabled:not(.active):not(.btn-active) .svg-inline--fa,
+.pagin .btn.disabled:not(.active):not(.btn-active) .svg-inline--fa,
+.pagin .btn-disabled:not(.active):not(.btn-active) .svg-inline--fa {
+  color: #c0c7d2 !important;
+  fill: #c0c7d2 !important;
+}
+
+/* Ô hiển thị dấu ba chấm (...) */
+.pagin .pagin-ellipsis {
+  cursor: default !important;
+  pointer-events: none;
+  color: #748194 !important;
+  border-color: #d8e2ef !important;
+}
+
+.pagin .pagin-ellipsis .svg-inline--fa {
+  color: #748194 !important;
+  fill: #748194 !important;
 }
 
 
@@ -625,6 +725,7 @@ grid-template-rows: auto auto auto;
   -ms-flex: 0 0 83.333333%;
   flex: 0 0 83.333333%;
   max-width: 83.333333%;
+  min-width: 0;
 }
 
 .box-shadow .title,
@@ -669,6 +770,15 @@ grid-template-rows: auto auto auto;
 
 .show-data li {
   border-bottom: 1px dotted #e3e3e3;
+}
+
+.show-data li .col-sm-10,
+.show-data li .col-sm,
+.text-break {
+  min-width: 0;
+  word-break: break-all !important;
+  overflow-wrap: anywhere !important;
+  white-space: normal !important;
 }
 
 .show-data li.title {
@@ -935,4 +1045,36 @@ cursor: pointer;
   height: 20px;
   background: url(/assets/images/ic_calendar.svg) no-repeat center center;
   background-size: contain;
+}
+
+/* Tùy chỉnh hiển thị dropdown chọn Tháng và Năm trong DatePicker */
+.react-datepicker__year-dropdown-container--select,
+.react-datepicker__month-dropdown-container--select {
+  margin: 0 4px !important;
+  display: inline-block;
+}
+
+.react-datepicker__month-select,
+.react-datepicker__year-select {
+  padding: 3px 6px !important;
+  font-size: 13px !important;
+  border: 1px solid #ced4da !important;
+  border-radius: 4px !important;
+  background-color: #fff !important;
+  color: #333 !important;
+  cursor: pointer !important;
+  outline: none !important;
+  height: 28px;
+  line-height: 1.5;
+}
+
+.react-datepicker__month-select:focus,
+.react-datepicker__year-select:focus {
+  border-color: #80bdff !important;
+  box-shadow: 0 0 0 0.15rem rgba(0, 123, 255, 0.25) !important;
+}
+
+.react-datepicker__header__dropdown {
+  margin-top: 4px;
+  margin-bottom: 4px;
 }

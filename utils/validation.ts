@@ -5,7 +5,7 @@ export const MAX_LENGTH_50 = 50;
 export const MAX_LENGTH_125 = 125;
 export const PASSWORD_MIN_LENGTH = 8;
 export const PASSWORD_MAX_LENGTH = 50;
-export const EMAIL_FORMAT_TOKEN = 'email';
+export const EMAIL_FORMAT_TOKEN = 'メールア';
 
 /** Katakana nửa góc (Half-width Katakana) theo test case và specs dự án */
 export const KATAKANA_HALF_WIDTH_REGEX = /^[\uFF65-\uFF9F ]+$/;

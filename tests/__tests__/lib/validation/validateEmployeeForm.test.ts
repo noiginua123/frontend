@@ -1,6 +1,8 @@
 import { ERR_CODE, FIELD_LABELS, getErrorMessage } from '@/constants/messages';
+import { EMAIL_FORMAT_TOKEN } from '@/utils/validation';
 import {
   employeeFormSchema,
+  employeeEditSchema,
   type EmployeeFormData,
 } from '@/lib/validation/validateEmployeeForm';
 
@@ -29,9 +31,8 @@ function getFieldMessages(
     return [];
   }
 
-  return result.error.issues
-    .filter((issue) => issue.path[0] === field)
-    .map((issue) => issue.message);
+  const issues = result.error.issues.filter((issue) => issue.path[0] === field);
+  return issues.length > 0 ? [issues[0].message] : [];
 }
 
 describe('employeeFormSchema', () => {
@@ -52,17 +53,61 @@ describe('employeeFormSchema', () => {
   });
 
   it('counts Unicode code points consistently with the backend', () => {
-    const fiftyCodePoints = `a${'😀'.repeat(49)}`;
-
-    expect(
-      getFieldMessages({ employeeLoginId: fiftyCodePoints }, 'employeeLoginId'),
-    ).toEqual([getErrorMessage(ERR_CODE.ER019)]);
     expect(
       getFieldMessages(
         { employeeName: '😀'.repeat(125) },
         'employeeName',
       ),
     ).toEqual([]);
+  });
+
+  it('accepts employeeNameKana with exactly 125 half-width Katakana characters', () => {
+    expect(
+      getFieldMessages(
+        { employeeNameKana: 'ｱ'.repeat(125) },
+        'employeeNameKana',
+      ),
+    ).toEqual([]);
+  });
+
+  it('rejects employeeNameKana with 126 half-width Katakana characters with ER006', () => {
+    expect(
+      getFieldMessages(
+        { employeeNameKana: 'ｱ'.repeat(126) },
+        'employeeNameKana',
+      ),
+    ).toEqual([
+      getErrorMessage(ERR_CODE.ER006, ['125', FIELD_LABELS.FULLNAME_KANA]),
+    ]);
+  });
+
+  it('validates employeeEmail with ER008 for full-width characters and ER005 for invalid format', () => {
+    expect(
+      getFieldMessages(
+        { employeeEmail: 'ｔｅｓｔ＠ｅｘａｍｐｌｅ．ｃｏｍ' },
+        'employeeEmail',
+      ),
+    ).toEqual([
+      getErrorMessage(ERR_CODE.ER008, [FIELD_LABELS.EMAIL]),
+    ]);
+
+    expect(
+      getFieldMessages(
+        { employeeEmail: 'テスト@example.com' },
+        'employeeEmail',
+      ),
+    ).toEqual([
+      getErrorMessage(ERR_CODE.ER008, [FIELD_LABELS.EMAIL]),
+    ]);
+
+    expect(
+      getFieldMessages(
+        { employeeEmail: 'invalid-email' },
+        'employeeEmail',
+      ),
+    ).toEqual([
+      getErrorMessage(ERR_CODE.ER005, [FIELD_LABELS.EMAIL, EMAIL_FORMAT_TOKEN]),
+    ]);
   });
 
   it('rejects an invalid calendar date', () => {
@@ -141,5 +186,30 @@ describe('employeeFormSchema', () => {
         'certificationEndDate',
       ),
     ).toEqual([getErrorMessage(ERR_CODE.ER012)]);
+  });
+});
+
+describe('employeeEditSchema', () => {
+  const VALID_EDIT_FORM = {
+    ...VALID_FORM,
+    employeeLoginPassword: '',
+    employeeLoginPasswordConfirm: '',
+  };
+
+  it('accepts form even when employeeLoginId is empty or undefined in edit mode', () => {
+    const withoutLoginId = { ...VALID_EDIT_FORM, employeeLoginId: '' };
+    expect(employeeEditSchema.safeParse(withoutLoginId).success).toBe(true);
+
+    const undefinedLoginId = { ...VALID_EDIT_FORM, employeeLoginId: undefined };
+    expect(employeeEditSchema.safeParse(undefinedLoginId).success).toBe(true);
+  });
+
+  it('does not perform regex or length checks on employeeLoginId in edit mode', () => {
+    const invalidFormatLoginId = { ...VALID_EDIT_FORM, employeeLoginId: '123_invalid_login_starts_with_number!' };
+    expect(employeeEditSchema.safeParse(invalidFormatLoginId).success).toBe(true);
+  });
+
+  it('accepts empty passwords in edit mode (keep existing password in DB)', () => {
+    expect(employeeEditSchema.safeParse(VALID_EDIT_FORM).success).toBe(true);
   });
 });

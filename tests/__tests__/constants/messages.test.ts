@@ -6,6 +6,8 @@ import {
   getErrorMessage,
   INFO_MESSAGES,
   MSG_CODE,
+  MessageCode,
+  formatValidationMessage,
 } from '@/constants/messages';
 
 describe('Messages and Constants', () => {
@@ -55,6 +57,28 @@ describe('Messages and Constants', () => {
     it('should return default system error message for unknown error code', () => {
       const msg = getErrorMessage('UNKNOWN_CODE');
       expect(msg).toBe('システムエラーが発生しました。');
+    });
+  });
+
+  describe('MessageCode and formatValidationMessage', () => {
+    it('MessageCode should return template/message directly', () => {
+      expect(MessageCode.ER019).toBe(getErrorMessage(ERR_CODE.ER019));
+      expect(MessageCode.ER017).toBe(getErrorMessage(ERR_CODE.ER017));
+    });
+
+    it('formatValidationMessage should format message with ER001 and field label', () => {
+      expect(formatValidationMessage(MessageCode.ER001, FIELD_LABELS.LOGIN_ID)).toBe(
+        '「アカウント名」を入力してください。',
+      );
+    });
+
+    it('formatValidationMessage should support flexible params order for ER006', () => {
+      expect(
+        formatValidationMessage(MessageCode.ER006, FIELD_LABELS.LOGIN_ID, '50'),
+      ).toBe('50桁以内の「アカウント名」を入力してください。');
+      expect(
+        formatValidationMessage(ERR_CODE.ER006, 50, FIELD_LABELS.LOGIN_ID),
+      ).toBe('50桁以内の「アカウント名」を入力してください。');
     });
   });
 });

@@ -124,7 +124,7 @@ export interface CreateEmployeePayload {
  * Payload cập nhật thông tin nhân viên PUT /employee/{id}
  */
 export interface UpdateEmployeePayload extends CreateEmployeePayload {
-  employeeId: number;
+  employeeId: number | string;
 }
 
 /**
