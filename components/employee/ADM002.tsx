@@ -181,9 +181,9 @@ export default function ADM002() {
                   </div>
                   <div title={e.employeeName}>{truncateEmployeeName(e.employeeName)}</div>
                   <div>{formatEmployeeDate(e.employeeBirthDate)}</div>
-                  <div>{e.departmentName ?? ''}</div>
+                  <div title={e.departmentName ?? ''}>{truncateEmployeeName(e.departmentName)}</div>
                   <div title={e.employeeEmail ?? ''}>{truncateEmployeeName(e.employeeEmail)}</div>
-                  <div>{e.employeeTelephone ?? ''}</div>
+                  <div title={e.employeeTelephone ?? ''}>{truncateEmployeeName(e.employeeTelephone)}</div>
                   <div title={e.certificationName ?? ''}>{truncateEmployeeName(e.certificationName)}</div>
                   <div>{formatEmployeeDate(e.endDate)}</div>
                   <div>{e.score !== null && e.score !== undefined ? e.score : ''}</div>

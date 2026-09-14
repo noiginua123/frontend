@@ -668,7 +668,7 @@ width: 100%
 
 .css-grid-table-header,
 .css-grid-table-body {
-grid-template-columns: 3% 19% 8% 9% 20% 10% 17% 9% 5%;
+grid-template-columns: 4% 19% 8% 8% 19% 11% 17% 9% 5%;
 width: 100%;
 line-height: 24px; 
 }
@@ -686,6 +686,10 @@ grid-template-rows: auto auto auto;
   padding: 12px 4px;
   text-align: left;
   border-bottom: 1px solid #ccc;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .css-grid-table .css-grid-table-header div:not(:first-child),
@@ -695,10 +699,18 @@ grid-template-rows: auto auto auto;
 
 .css-grid-table .css-grid-table-body div.bor-l-none {
   border-left: none;
+  text-overflow: clip;
 }
 
+.css-grid-table .css-grid-table-header div:first-child,
+.css-grid-table .css-grid-table-header div.text-center,
 .css-grid-table .css-grid-table-body div.text-center {
   text-align: center;
+}
+
+.css-grid-table .css-grid-table-header div:first-child,
+.css-grid-table .css-grid-table-body div.bor-l-none {
+  padding-right: 14px;
 }
 
 .css-grid-table-header div,
