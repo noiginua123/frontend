@@ -9,6 +9,7 @@
 export function createVisiblePages(
   currentPage: number,
   totalPages: number,
+  siblingCount: number = 1,
 ): number[] {
   if (totalPages <= 1) {
     return [1];
@@ -16,14 +17,12 @@ export function createVisiblePages(
 
   const pages = new Set<number>();
   pages.add(1);
-  if (currentPage - 1 >= 1) {
-    pages.add(currentPage - 1);
+  for (let i = currentPage - siblingCount; i <= currentPage + siblingCount; i++) {
+    if (i >= 1 && i <= totalPages) {
+      pages.add(i)
+    }
   }
-  pages.add(currentPage);
-  if (currentPage + 1 <= totalPages) {
-    pages.add(currentPage + 1);
-  }
-  pages.add(totalPages);
+  pages.add(totalPages)
 
   return Array.from(pages).sort((firstPage, secondPage) => firstPage - secondPage);
 }
