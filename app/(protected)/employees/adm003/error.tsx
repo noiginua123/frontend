@@ -5,7 +5,7 @@ import SystemError from '@/components/common/SystemError';
 
 interface ADM003ErrorProps {
   error: Error & { digest?: string };
-  reset: () => void;
+  reset?: () => void;
 }
 
 /**
@@ -15,7 +15,7 @@ interface ADM003ErrorProps {
  * @param props Đối tượng chứa thông tin lỗi và hàm reset thử lại
  * @return Màn hình thông báo lỗi hệ thống
  */
-export default function ADM003Error({ error, reset }: ADM003ErrorProps) {
+export default function ADM003Error({ error }: ADM003ErrorProps) {
   useEffect(() => {
     console.error('ADM003 Runtime Error:', error);
   }, [error]);

@@ -196,7 +196,10 @@ export const employeeCreateSchema = z
       .string()
       .trim()
       .min(1, formatValidationMessage(MessageCode.ER001, FIELD_LABELS.LOGIN_ID))
-      .max(50, formatValidationMessage(MessageCode.ER006, FIELD_LABELS.LOGIN_ID, '50'))
+      .max(
+        MAX_LENGTH_50,
+        formatValidationMessage(MessageCode.ER006, FIELD_LABELS.LOGIN_ID, String(MAX_LENGTH_50)),
+      )
       .regex(/^[a-zA-Z_][a-zA-Z0-9_]*$/, MessageCode.ER019),
 
     // Mật khẩu (employeeLoginPassword)

@@ -63,7 +63,7 @@ export function transformCreatePayload(form: EmployeeFormData): CreateEmployeePa
  * @return Response chứa id và message thành công
  */
 export async function addEmployee(payload: CreateEmployeePayload): Promise<EmployeeResponse> {
-  const response = await apiClient.post<EmployeeResponse>('/employee?mode=add', payload);
+  const response = await apiClient.post<EmployeeResponse>('/employee', payload);
   return response.data;
 }
 
@@ -87,13 +87,13 @@ export function transformUpdatePayload(form: StoredEmployeeForm): UpdateEmployee
 }
 
 /**
- * Gọi API cập nhật thông tin nhân viên (ghi DB - PUT /employee?mode=edit).
+ * Gọi API cập nhật thông tin nhân viên (ghi DB - PUT /employee).
  *
  * @param payload Dữ liệu nhân viên cần cập nhật kèm ID
  * @return Response chứa ID và message thành công (MSG002)
  */
 export async function updateEmployee(payload: UpdateEmployeePayload): Promise<EmployeeResponse> {
-  const response = await apiClient.put<EmployeeResponse>('/employee?mode=edit', payload);
+  const response = await apiClient.put<EmployeeResponse>('/employee', payload);
   return response.data;
 }
 

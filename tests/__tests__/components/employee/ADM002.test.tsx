@@ -36,7 +36,7 @@ describe('ADM002 Component - Pagination Redesign', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseADM002.mockReturnValue(defaultMockReturn as any);
+    mockUseADM002.mockReturnValue(defaultMockReturn as unknown as ReturnType<typeof useADM002>);
   });
 
   it('renders pagination with SVG icons and page buttons matching Falcon style', () => {

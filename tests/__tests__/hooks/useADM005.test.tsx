@@ -1,6 +1,6 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { useADM005 } from '@/hooks/useADM005';
-import { checkEmployeeExists, addEmployee, updateEmployee } from '@/lib/api/employee.api';
+import { checkEmployeeExists } from '@/lib/api/employee.api';
 import { saveEmployeeFormData, clearEmployeeFormData } from '@/utils/storage';
 import { DEFAULT_FORM_VALUES } from '@/hooks/useADM004';
 

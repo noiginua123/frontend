@@ -41,7 +41,7 @@ describe('ADM005 Component', () => {
   });
 
   it('renders formData with text-break class so long names (125 chars) wrap properly', () => {
-    const { container } = render(<ADM005 />);
+    render(<ADM005 />);
 
     expect(screen.getByText('情報確認')).toBeInTheDocument();
 
