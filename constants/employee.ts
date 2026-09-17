@@ -76,3 +76,46 @@ export const EMPLOYEE_MESSAGES = {
 export const ADM002_MESSAGES = EMPLOYEE_MESSAGES;
 export const ADM003_MESSAGES = EMPLOYEE_MESSAGES;
 export const ADM004_MESSAGES = EMPLOYEE_MESSAGES;
+
+/** Các nhãn nút bấm chung trong toàn bộ hệ thống (ADM002 - ADM006). */
+export const BUTTON_LABELS = {
+  SEARCH: '検索',
+  ADD_NEW: '新規追加',
+  EDIT: '編集',
+  DELETE: '削除',
+  BACK: '戻る',
+  CONFIRM: '確認',
+  OK: 'OK',
+} as const;
+
+/** Tiêu đề màn hình và các đoạn mô tả hướng dẫn (ADM002 - ADM006). */
+export const SCREEN_TITLES = {
+  ADM002_SEARCH_GUIDE: '会員名称で会員を検索します。検索条件無しの場合は全て表示されます。',
+  ADM003_DETAIL: '情報確認',
+  ADM004_ADD: '会員情報登録',
+  ADM004_EDIT: '会員情報編集',
+  ADM005_CONFIRM: '情報確認',
+  ADM005_CONFIRM_DESC: '入力された情報をＯＫボタンクリックでＤＢへ保存してください',
+  SECTION_JAPANESE_LEVEL: '日本語能力',
+} as const;
+
+/** Các nhãn tùy chọn chọn lọc hoặc placeholder. */
+export const SELECT_OPTIONS = {
+  ALL: '全て',
+  DEFAULT_SELECT: '選択してください',
+  DATE_FORMAT_PLACEHOLDER: 'yyyy/MM/dd',
+} as const;
+
+/** Tiêu đề các cột trong bảng danh sách nhân viên (ADM002). */
+export const TABLE_COLUMN_HEADERS = {
+  ID: 'ID',
+  FULLNAME: FIELD_LABELS.FULLNAME,
+  BIRTH_DATE: FIELD_LABELS.BIRTH_DATE,
+  GROUP: FIELD_LABELS.GROUP,
+  EMAIL: FIELD_LABELS.EMAIL,
+  TEL: FIELD_LABELS.TEL,
+  JAPANESE_LEVEL: SCREEN_TITLES.SECTION_JAPANESE_LEVEL,
+  END_DATE: FIELD_LABELS.END_DATE,
+  SCORE: FIELD_LABELS.SCORE,
+} as const;
+

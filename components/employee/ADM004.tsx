@@ -9,6 +9,12 @@ import { ja } from 'date-fns/locale/ja';
 registerLocale('ja', ja);
 
 import { useADM004 } from '@/hooks/useADM004';
+import {
+  BUTTON_LABELS,
+  FIELD_LABELS,
+  SCREEN_TITLES,
+  SELECT_OPTIONS,
+} from '@/constants';
 
 import type { EmployeeFormData } from '@/lib/validation/validateEmployeeForm';
 
@@ -69,7 +75,7 @@ export default function ADM004() {
       <form className="c-form box-shadow" onSubmit={handleConfirm} noValidate>
         <ul>
           {/* Tiêu đề màn hình đăng ký / chỉnh sửa thông tin */}
-          <li className="title">{isEdit ? '会員情報編集' : '会員情報登録'}</li>
+          <li className="title">{isEdit ? SCREEN_TITLES.ADM004_EDIT : SCREEN_TITLES.ADM004_ADD}</li>
 
           {/* Khối hiển thị thông báo lỗi tổng quát từ backend (nếu có) */}
           {globalError && (
@@ -84,7 +90,7 @@ export default function ADM004() {
           {/* 1.1. Tên tài khoản đăng nhập */}
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2" htmlFor="employeeLoginId">
-              <i className="relative">アカウント名:{!isEdit && <span className="note-red">*</span>}</i>
+              <i className="relative">{`${FIELD_LABELS.LOGIN_ID}:`}{!isEdit && <span className="note-red">*</span>}</i>
             </label>
             <div className="col-sm col-sm-10">
               <input
@@ -103,14 +109,14 @@ export default function ADM004() {
             </div>
           </li>
           <li className="form-group row d-flex">
-            <label className="col-form-label col-sm-2"><i className="relative">グループ:<span className="note-red">*</span></i></label>
+            <label className="col-form-label col-sm-2"><i className="relative">{`${FIELD_LABELS.GROUP}:`}<span className="note-red">*</span></i></label>
             <div className="col-sm col-sm-10">
               <select
                 className={`form-control ${errors.departmentId ? 'is-invalid' : ''}`}
                 {...register('departmentId')}
                 onFocus={() => handleFocus('departmentId')}
               >
-                <option value="">選択してください</option>
+                <option value="">{SELECT_OPTIONS.DEFAULT_SELECT}</option>
                 {departments.map((department) => (
                   <option key={department.departmentId} value={String(department.departmentId)}>
                     {department.departmentName}
@@ -123,7 +129,7 @@ export default function ADM004() {
             </div>
           </li>
           <li className="form-group row d-flex">
-            <label className="col-form-label col-sm-2"><i className="relative">氏名:<span className="note-red">*</span></i></label>
+            <label className="col-form-label col-sm-2"><i className="relative">{`${FIELD_LABELS.FULLNAME}:`}<span className="note-red">*</span></i></label>
             <div className="col-sm col-sm-10">
               <input
                 type="text"
@@ -137,7 +143,7 @@ export default function ADM004() {
             </div>
           </li>
           <li className="form-group row d-flex">
-            <label className="col-form-label col-sm-2"><i className="relative">カタカナ氏名:<span className="note-red">*</span></i></label>
+            <label className="col-form-label col-sm-2"><i className="relative">{`${FIELD_LABELS.FULLNAME_KANA}:`}<span className="note-red">*</span></i></label>
             <div className="col-sm col-sm-10">
               <input
                 type="text"
@@ -151,7 +157,7 @@ export default function ADM004() {
             </div>
           </li>
           <li className="form-group row d-flex">
-            <label className="col-form-label col-sm-2"><i className="relative">生年月日:<span className="note-red">*</span></i></label>
+            <label className="col-form-label col-sm-2"><i className="relative">{`${FIELD_LABELS.BIRTH_DATE}:`}<span className="note-red">*</span></i></label>
             <div className="col-sm col-sm-10">
               <div className="datepicker-wrapper">
                 <Controller
@@ -159,7 +165,7 @@ export default function ADM004() {
                   name="employeeBirthDate"
                   render={({ field }) => (
                     <DatePicker
-                      placeholderText="yyyy/MM/dd"
+                      placeholderText={SELECT_OPTIONS.DATE_FORMAT_PLACEHOLDER}
                       className={`form-control ${errors.employeeBirthDate ? 'is-invalid' : ''}`}
                       selected={parseDateValue(field.value)}
                       onChange={(date: Date | null) => field.onChange(date ? format(date, 'yyyy/MM/dd') : '')}
@@ -183,7 +189,7 @@ export default function ADM004() {
             </div>
           </li>
           <li className="form-group row d-flex">
-            <label className="col-form-label col-sm-2"><i className="relative">メールアドレス:<span className="note-red">*</span></i></label>
+            <label className="col-form-label col-sm-2"><i className="relative">{`${FIELD_LABELS.EMAIL}:`}<span className="note-red">*</span></i></label>
             <div className="col-sm col-sm-10">
               <input
                 type="text"
@@ -197,7 +203,7 @@ export default function ADM004() {
             </div>
           </li>
           <li className="form-group row d-flex">
-            <label className="col-form-label col-sm-2"><i className="relative">電話番号:<span className="note-red">*</span></i></label>
+            <label className="col-form-label col-sm-2"><i className="relative">{`${FIELD_LABELS.TEL}:`}<span className="note-red">*</span></i></label>
             <div className="col-sm col-sm-10">
               <input
                 type="text"
@@ -213,7 +219,7 @@ export default function ADM004() {
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">
               <i className="relative">
-                パスワード:
+                {`${FIELD_LABELS.PASSWORD}:`}
                 {!isEdit && <span className="note-red">*</span>}
               </i>
             </label>
@@ -233,7 +239,7 @@ export default function ADM004() {
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">
               <i className="relative">
-                パスワード（確認）:
+                {`${FIELD_LABELS.PASSWORD_CONFIRM}:`}
                 {!isEdit && <span className="note-red">*</span>}
               </i>
             </label>
@@ -254,10 +260,10 @@ export default function ADM004() {
           {/* =================================================================
               PHẦN 2: THÔNG TIN TRÌNH ĐỘ TIẾNG NHẬT (日本語能力)
               ================================================================= */}
-          <li className="title mt-12"><a href="#!">日本語能力</a></li>
+          <li className="title mt-12"><a href="#!">{SCREEN_TITLES.SECTION_JAPANESE_LEVEL}</a></li>
           {/* 2.1. Trình độ chứng chỉ */}
           <li className="form-group row d-flex">
-            <label className="col-form-label col-sm-2"><i className="relative">資格:</i></label>
+            <label className="col-form-label col-sm-2"><i className="relative">{`${FIELD_LABELS.CERTIFICATION}:`}</i></label>
             <div className="col-sm col-sm-10">
               <select
                 className={`form-control ${errors.certificationId ? 'is-invalid' : ''}`}
@@ -267,7 +273,7 @@ export default function ADM004() {
                 })}
                 onFocus={() => handleFocus('certificationId')}
               >
-                <option value="">選択してください</option>
+                <option value="">{SELECT_OPTIONS.DEFAULT_SELECT}</option>
                 {certifications.map((certification) => (
                   <option key={certification.certificationId} value={String(certification.certificationId)}>
                     {certification.certificationName}
@@ -282,7 +288,7 @@ export default function ADM004() {
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">
               <i className="relative">
-                資格交付日:
+                {`${FIELD_LABELS.START_DATE}:`}
                 {isCertificationSelected && <span className="note-red">*</span>}
               </i>
             </label>
@@ -293,7 +299,7 @@ export default function ADM004() {
                   name="certificationStartDate"
                   render={({ field }) => (
                     <DatePicker
-                      placeholderText="yyyy/MM/dd"
+                      placeholderText={SELECT_OPTIONS.DATE_FORMAT_PLACEHOLDER}
                       className={`form-control ${errors.certificationStartDate ? 'is-invalid' : ''}`}
                       selected={parseDateValue(field.value)}
                       onChange={(date: Date | null) => {
@@ -323,7 +329,7 @@ export default function ADM004() {
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">
               <i className="relative">
-                失効日:
+                {`${FIELD_LABELS.END_DATE}:`}
                 {isCertificationSelected && <span className="note-red">*</span>}
               </i>
             </label>
@@ -334,7 +340,7 @@ export default function ADM004() {
                   name="certificationEndDate"
                   render={({ field }) => (
                     <DatePicker
-                      placeholderText="yyyy/MM/dd"
+                      placeholderText={SELECT_OPTIONS.DATE_FORMAT_PLACEHOLDER}
                       className={`form-control ${errors.certificationEndDate ? 'is-invalid' : ''}`}
                       selected={parseDateValue(field.value)}
                       onChange={(date: Date | null) => field.onChange(date ? format(date, 'yyyy/MM/dd') : '')}
@@ -361,7 +367,7 @@ export default function ADM004() {
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">
               <i className="relative">
-                点数:
+                {`${FIELD_LABELS.SCORE}:`}
                 {isCertificationSelected && <span className="note-red">*</span>}
               </i>
             </label>
@@ -384,8 +390,8 @@ export default function ADM004() {
               ================================================================= */}
           <li className="form-group row d-flex">
             <div className="btn-group col-sm col-sm-10 ml">
-              <button type="submit" className="btn btn-primary btn-sm">確認</button>
-              <button type="button" onClick={handleBack} className="btn btn-secondary btn-sm">戻る</button>
+              <button type="submit" className="btn btn-primary btn-sm">{BUTTON_LABELS.CONFIRM}</button>
+              <button type="button" onClick={handleBack} className="btn btn-secondary btn-sm">{BUTTON_LABELS.BACK}</button>
             </div>
           </li>
         </ul>

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useADM006 } from '@/hooks/useADM006';
+import { BUTTON_LABELS } from '@/constants';
 
 /**
  * Component hiển thị thông báo hoàn thành thao tác nhân viên (ADM006).
@@ -24,7 +25,7 @@ export default function ADM006() {
             onClick={handleOk}
             className="btn btn-primary btn-sm"
           >
-            OK
+            {BUTTON_LABELS.OK}
           </button>
         </div>
       </div>

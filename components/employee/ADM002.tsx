@@ -6,8 +6,13 @@ import { useADM002 } from '@/hooks/useADM002';
 import {
   ADM002_MESSAGES,
   ADM002_SORT_FIELDS,
+  BUTTON_LABELS,
   EMPLOYEE_NAME_MAX_LENGTH,
-} from '@/constants/employee';
+  FIELD_LABELS,
+  SCREEN_TITLES,
+  SELECT_OPTIONS,
+  TABLE_COLUMN_HEADERS,
+} from '@/constants';
 import { formatEmployeeDate, truncateEmployeeName } from '@/utils/employee';
 
 /**
@@ -41,7 +46,7 @@ export default function ADM002() {
     <>
       {/* 1. Phần form tìm kiếm nhân viên */}
       <div className="search-memb">
-        <h1 className="title">会員名称で会員を検索します。検索条件無しの場合は全て表示されます。</h1>
+        <h1 className="title">{SCREEN_TITLES.ADM002_SEARCH_GUIDE}</h1>
         {departmentError && (
           <div className="box-err-content adm002-error-message">
             {departmentError}
@@ -50,7 +55,7 @@ export default function ADM002() {
         <form className="c-form" onSubmit={onSearchSubmit}>
           <ul className="d-flex">
             <li className="form-group row">
-              <label className="col-form-label">氏名:</label>
+              <label className="col-form-label">{`${FIELD_LABELS.FULLNAME}:`}</label>
               <div className="col-sm">
                 <input
                   type="text"
@@ -67,10 +72,10 @@ export default function ADM002() {
               </div>
             </li>
             <li className="form-group row">
-              <label className="col-form-label">グループ:</label>
+              <label className="col-form-label">{`${FIELD_LABELS.GROUP}:`}</label>
               <div className="col-sm">
                 <select {...register('departmentId')}>
-                  <option value="">全て</option>
+                  <option value="">{SELECT_OPTIONS.ALL}</option>
                   {departments.map((dept) => (
                     <option key={dept.departmentId} value={dept.departmentId}>
                       {dept.departmentName}
@@ -82,14 +87,14 @@ export default function ADM002() {
             <li className="form-group row">
               <div className="btn-group">
                 <button type="submit" className="btn btn-primary btn-sm">
-                  検索
+                  {BUTTON_LABELS.SEARCH}
                 </button>
                 <button
                   type="button"
                   onClick={handleNavigateToAdd}
                   className="btn btn-secondary btn-sm"
                 >
-                  新規追加
+                  {BUTTON_LABELS.ADD_NEW}
                 </button>
               </div>
             </li>
@@ -102,7 +107,7 @@ export default function ADM002() {
         <div className="css-grid-table box-shadow">
           {/* Table Header */}
           <div className="css-grid-table-header">
-            <div>ID</div>
+            <div>{TABLE_COLUMN_HEADERS.ID}</div>
             <div
               className={`sort-header-button ${prioritySortField === ADM002_SORT_FIELDS.EMPLOYEE_NAME ? 'font-weight-bold text-dark' : ''}`}
               style={{
@@ -112,12 +117,12 @@ export default function ADM002() {
               }}
               onClick={() => void handleSort(ADM002_SORT_FIELDS.EMPLOYEE_NAME)}
             >
-              {renderSortLabel('氏名', sortState.ordEmployeeName)}
+              {renderSortLabel(TABLE_COLUMN_HEADERS.FULLNAME, sortState.ordEmployeeName)}
             </div>
-            <div>生年月日</div>
-            <div>グループ</div>
-            <div>メールアドレス</div>
-            <div>電話番号</div>
+            <div>{TABLE_COLUMN_HEADERS.BIRTH_DATE}</div>
+            <div>{TABLE_COLUMN_HEADERS.GROUP}</div>
+            <div>{TABLE_COLUMN_HEADERS.EMAIL}</div>
+            <div>{TABLE_COLUMN_HEADERS.TEL}</div>
             <div
               className={`sort-header-button ${prioritySortField === ADM002_SORT_FIELDS.CERTIFICATION_NAME ? 'font-weight-bold text-dark' : ''}`}
               style={{
@@ -127,7 +132,7 @@ export default function ADM002() {
               }}
               onClick={() => void handleSort(ADM002_SORT_FIELDS.CERTIFICATION_NAME)}
             >
-              {renderSortLabel('日本語能力', sortState.ordCertificationName)}
+              {renderSortLabel(TABLE_COLUMN_HEADERS.JAPANESE_LEVEL, sortState.ordCertificationName)}
             </div>
             <div
               className={`sort-header-button ${prioritySortField === ADM002_SORT_FIELDS.END_DATE ? 'font-weight-bold text-dark' : ''}`}
@@ -138,9 +143,9 @@ export default function ADM002() {
               }}
               onClick={() => void handleSort(ADM002_SORT_FIELDS.END_DATE)}
             >
-              {renderSortLabel('失効日', sortState.ordEndDate)}
+              {renderSortLabel(TABLE_COLUMN_HEADERS.END_DATE, sortState.ordEndDate)}
             </div>
-            <div>点数</div>
+            <div>{TABLE_COLUMN_HEADERS.SCORE}</div>
           </div>
 
           {/* Loading / Error / Empty States */}

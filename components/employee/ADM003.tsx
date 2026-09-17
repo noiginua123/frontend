@@ -3,6 +3,12 @@
 import React from 'react';
 import { useADM003 } from '@/hooks/useADM003';
 import SystemError from '@/components/common/SystemError';
+import {
+  BUTTON_LABELS,
+  EMPLOYEE_MESSAGES,
+  FIELD_LABELS,
+  SCREEN_TITLES,
+} from '@/constants';
 
 /**
  * Component hiển thị thông tin chi tiết nhân viên (ADM003).
@@ -24,7 +30,7 @@ export default function ADM003() {
     return (
       <div className="row">
         <div className="c-form box-shadow p-4 text-center">
-          <p>読み込み中...</p>
+          <p>{EMPLOYEE_MESSAGES.loading}</p>
         </div>
       </div>
     );
@@ -46,14 +52,14 @@ export default function ADM003() {
       <div className="row">
         <div className="c-form box-shadow">
           <ul className="show-data">
-            <li className="title">情報確認</li>
+            <li className="title">{SCREEN_TITLES.ADM003_DETAIL}</li>
             <li className="box-err">
               <div className="box-err-content">{errorMessage}</div>
             </li>
             <li className="form-group row d-flex">
               <div className="btn-group col-sm col-sm-10 ml">
                 <button type="button" onClick={handleBack} className="btn btn-secondary btn-sm">
-                  戻る
+                  {BUTTON_LABELS.BACK}
                 </button>
               </div>
             </li>
@@ -75,7 +81,7 @@ export default function ADM003() {
     <div className="row">
       <form className="c-form box-shadow" onSubmit={(e) => e.preventDefault()}>
         <ul className="show-data">
-          <li className="title">情報確認</li>
+          <li className="title">{SCREEN_TITLES.ADM003_DETAIL}</li>
 
           {errorMessage && (
             <li className="box-err">
@@ -84,50 +90,50 @@ export default function ADM003() {
           )}
 
           <li className="form-group row d-flex">
-            <label className="col-form-label col-sm-2">アカウント名</label>
+            <label className="col-form-label col-sm-2">{FIELD_LABELS.LOGIN_ID}</label>
             <div className="col-sm col-sm-10 text-break">{employee.employeeLoginId}</div>
           </li>
           <li className="form-group row d-flex">
-            <label className="col-form-label col-sm-2">グループ</label>
+            <label className="col-form-label col-sm-2">{FIELD_LABELS.GROUP}</label>
             <div className="col-sm col-sm-10 text-break">{employee.departmentName}</div>
           </li>
           <li className="form-group row d-flex">
-            <label className="col-form-label col-sm-2">氏名</label>
+            <label className="col-form-label col-sm-2">{FIELD_LABELS.FULLNAME}</label>
             <div className="col-sm col-sm-10 text-break">{employee.employeeName}</div>
           </li>
           <li className="form-group row d-flex">
-            <label className="col-form-label col-sm-2">カタカナ氏名</label>
+            <label className="col-form-label col-sm-2">{FIELD_LABELS.FULLNAME_KANA}</label>
             <div className="col-sm col-sm-10 text-break">{employee.employeeNameKana}</div>
           </li>
           <li className="form-group row d-flex">
-            <label className="col-form-label col-sm-2">生年月日</label>
+            <label className="col-form-label col-sm-2">{FIELD_LABELS.BIRTH_DATE}</label>
             <div className="col-sm col-sm-10 text-break">{employee.employeeBirthDate}</div>
           </li>
           <li className="form-group row d-flex">
-            <label className="col-form-label col-sm-2">メールアドレス</label>
+            <label className="col-form-label col-sm-2">{FIELD_LABELS.EMAIL}</label>
             <div className="col-sm col-sm-10 text-break">{employee.employeeEmail}</div>
           </li>
           <li className="form-group row d-flex bor-none">
-            <label className="col-form-label col-sm-2">電話番号</label>
+            <label className="col-form-label col-sm-2">{FIELD_LABELS.TEL}</label>
             <div className="col-sm col-sm-10 text-break">{employee.employeeTelephone}</div>
           </li>
 
           {/* Phần thông tin chứng chỉ tiếng Nhật (luôn hiển thị, để trống khi không có chứng chỉ) */}
-          <li className="title mt-12"><a href="#!">日本語能力</a></li>
+          <li className="title mt-12"><a href="#!">{SCREEN_TITLES.SECTION_JAPANESE_LEVEL}</a></li>
           <li className="form-group row d-flex">
-            <label className="col-form-label col-sm-2">資格</label>
+            <label className="col-form-label col-sm-2">{FIELD_LABELS.CERTIFICATION}</label>
             <div className="col-sm col-sm-10">{cert?.certificationName || ''}</div>
           </li>
           <li className="form-group row d-flex">
-            <label className="col-form-label col-sm-2">資格交付日</label>
+            <label className="col-form-label col-sm-2">{FIELD_LABELS.START_DATE}</label>
             <div className="col-sm col-sm-10">{cert?.startDate || ''}</div>
           </li>
           <li className="form-group row d-flex">
-            <label className="col-form-label col-sm-2">失効日</label>
+            <label className="col-form-label col-sm-2">{FIELD_LABELS.END_DATE}</label>
             <div className="col-sm col-sm-10">{cert?.endDate || ''}</div>
           </li>
           <li className="form-group row d-flex">
-            <label className="col-form-label col-sm-2">点数</label>
+            <label className="col-form-label col-sm-2">{FIELD_LABELS.SCORE}</label>
             <div className="col-sm col-sm-10">{cert?.score != null ? String(cert.score) : ''}</div>
           </li>
 
@@ -140,7 +146,7 @@ export default function ADM003() {
                 disabled={isDeleting}
                 className="btn btn-primary btn-sm"
               >
-                編集
+                {BUTTON_LABELS.EDIT}
               </button>
               <button
                 type="button"
@@ -148,7 +154,7 @@ export default function ADM003() {
                 disabled={isDeleting}
                 className="btn btn-secondary btn-sm"
               >
-                削除
+                {BUTTON_LABELS.DELETE}
               </button>
               <button
                 type="button"
@@ -156,7 +162,7 @@ export default function ADM003() {
                 disabled={isDeleting}
                 className="btn btn-secondary btn-sm"
               >
-                戻る
+                {BUTTON_LABELS.BACK}
               </button>
             </div>
           </li>

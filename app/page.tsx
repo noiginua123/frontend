@@ -1,51 +1,26 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
 
-export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { getToken, isTokenExpired } from '@/lib/auth/token';
+import { ROUTES } from '@/constants/routes';
+
+/**
+ * Trang gốc (/) - Tự động điều hướng dựa trên trạng thái đăng nhập:
+ * - Nếu đã đăng nhập và token còn hạn: Chuyển hướng sang danh sách nhân viên (/employees/adm002)
+ * - Nếu chưa đăng nhập hoặc token đã hết hạn: Chuyển hướng sang trang đăng nhập (/login)
+ */
+export default function HomePage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = getToken();
+    if (token && !isTokenExpired(token.accessToken)) {
+      router.replace(ROUTES.EMPLOYEES.LIST);
+    } else {
+      router.replace(ROUTES.AUTH.LOGIN);
+    }
+  }, [router]);
+
+  return null;
 }
