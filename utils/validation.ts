@@ -1,6 +1,4 @@
-// =============================================================================
 // HẰNG SỐ GIỚI HẠN & BIỂU THỨC CHÍNH QUY (REGEX)
-// =============================================================================
 export const MAX_LENGTH_50 = 50;
 export const MAX_LENGTH_125 = 125;
 export const PASSWORD_MIN_LENGTH = 8;
@@ -18,9 +16,7 @@ export const DIGITS_REGEX = /^[0-9]+$/;
 /** Định dạng ngày YYYY/MM/DD */
 export const DATE_FORMAT_REGEX = /^\d{4}\/\d{2}\/\d{2}$/;
 
-// =============================================================================
 // CÁC HÀM TIỆN ÍCH KIỂM TRA (HELPERS)
-// =============================================================================
 
 /**
  * Đếm ký tự Unicode (Code Points) chuẩn xác (ví dụ Emoji hoặc ký tự đặc biệt)

@@ -11,9 +11,7 @@ import {
 } from '@/lib/validation/validateEmployeeForm';
 import { INITIAL_PRIORITY_SORT_FIELD } from './sort';
 
-/* ==========================================================================
-   1. QUẢN LÝ SESSION STATE MÀN HÌNH DANH SÁCH NHÂN VIÊN (ADM002)
-   ========================================================================== */
+// 1. QUẢN LÝ SESSION STATE MÀN HÌNH DANH SÁCH NHÂN VIÊN (ADM002)
 
 /**
  * Trạng thái hiển thị và tìm kiếm của màn hình ADM002 được lưu vào sessionStorage.
@@ -117,9 +115,7 @@ export function saveStoredADM002State(state: ADM002SessionState): void {
   }
 }
 
-/* ==========================================================================
-   2. QUẢN LÝ DỮ LIỆU FORM THÊM / SỬA NHÂN VIÊN (ADM004 - ADM005)
-   ========================================================================== */
+// 2. QUẢN LÝ DỮ LIỆU FORM THÊM / SỬA NHÂN VIÊN (ADM004 - ADM005)
 
 /**
  * Chế độ thao tác của Form nhập liệu nhân viên:

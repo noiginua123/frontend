@@ -39,9 +39,7 @@ export default function ADM005() {
             </li>
           )}
 
-          {/* =================================================================
-              PHẦN 1: THÔNG TIN TÀI KHOẢN VÀ THÔNG TIN CÁ NHÂN (CHẾ ĐỘ XEM)
-              ================================================================= */}
+          {/* PHẦN 1: THÔNG TIN TÀI KHOẢN VÀ THÔNG TIN CÁ NHÂN (CHẾ ĐỘ XEM) */}
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">{FIELD_LABELS.LOGIN_ID}</label>
             <div className="col-sm col-sm-10 text-break">{formData.employeeLoginId}</div>
@@ -71,9 +69,7 @@ export default function ADM005() {
             <div className="col-sm col-sm-10 text-break">{formData.employeeTelephone}</div>
           </li>
 
-          {/* =================================================================
-              PHẦN 2: THÔNG TIN TRÌNH ĐỘ TIẾNG NHẬT (CHẾ ĐỘ XEM)
-              ================================================================= */}
+          {/* PHẦN 2: THÔNG TIN TRÌNH ĐỘ TIẾNG NHẬT (CHẾ ĐỘ XEM) */}
           <li className="title mt-12"><a href="#!">{SCREEN_TITLES.SECTION_JAPANESE_LEVEL}</a></li>
           <li className="form-group row d-flex">
             <label className="col-form-label col-sm-2">{FIELD_LABELS.CERTIFICATION}</label>
@@ -92,9 +88,7 @@ export default function ADM005() {
             <div className="col-sm col-sm-10">{hasCertification ? (formData.certificationScore || '') : ''}</div>
           </li>
 
-          {/* =================================================================
-              PHẦN 3: NHÓM NÚT BẤM HÀNH ĐỘNG (XÁC NHẬN LƯU DB / QUAY LẠI)
-              ================================================================= */}
+          {/* PHẦN 3: NHÓM NÚT BẤM HÀNH ĐỘNG (XÁC NHẬN LƯU DB / QUAY LẠI) */}
           <li className="form-group row d-flex">
             <div className="btn-group col-sm col-sm-10 ml">
               <button type="button" onClick={handleSubmit} disabled={submitting} className="btn btn-primary btn-sm">{BUTTON_LABELS.OK}</button>
